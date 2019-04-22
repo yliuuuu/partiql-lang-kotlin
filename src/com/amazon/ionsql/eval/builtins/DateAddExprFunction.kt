@@ -11,12 +11,12 @@ internal class DateAddExprFunction(val ion: IonSystem) : ExprFunction {
 
         try {
             val addedTimestamp = when (datePart) {
-                DatePart.YEAR   -> timestamp.addYear(interval)
-                DatePart.MONTH  -> timestamp.addMonth(interval)
-                DatePart.DAY    -> timestamp.addDay(interval)
-                DatePart.HOUR   -> timestamp.addHour(interval)
-                DatePart.MINUTE -> timestamp.addMinute(interval)
-                DatePart.SECOND -> timestamp.addSecond(interval)
+                DatePart.YEAR   -> timestamp.adjustYear(interval)
+                DatePart.MONTH  -> timestamp.adjustMonth(interval)
+                DatePart.DAY    -> timestamp.adjustDay(interval)
+                DatePart.HOUR   -> timestamp.adjustHour(interval)
+                DatePart.MINUTE -> timestamp.adjustMinute(interval)
+                DatePart.SECOND -> timestamp.adjustSecond(interval)
                 else            -> errNoContext("invalid date part for date_add: ${datePart.toString().toLowerCase()}",
                                                 internal = false)
             }

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html  dir="ltr">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PartiQL Developer’s Guide</title>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon.png">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.4/css/uikit.gradient.css">
+
+        <link rel="stylesheet" href="style.css">
+        <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+        <script src="uikit.js"></script>
+        <script src="scripts.js"></script>
+        <script src="jquery.sticky-kit.js "></script>
+
+        <meta name="generator" content="pandoc-uikit" />
+                <meta name="author" content="Ion Team" />
+                        <title>PartiQL Developer’s Guide</title>
+        <style type="text/css">code{white-space: pre;}</style>
+                        <style type="text/css">
+            pre > code.sourceCode { white-space: pre; position: relative; }
+            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+            pre > code.sourceCode > span:empty { height: 1.2em; }
+            code.sourceCode > span { color: inherit; text-decoration: inherit; }
+            div.sourceCode { margin: 1em 0; }
+            pre.sourceCode { margin: 0; }
+            @media screen {
+            div.sourceCode { overflow: auto; }
+            }
+            @media print {
+            pre > code.sourceCode { white-space: pre-wrap; }
+            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+            }
+            pre.numberSource code
+              { counter-reset: source-line 0; }
+            pre.numberSource code > span
+              { position: relative; left: -4em; counter-increment: source-line; }
+            pre.numberSource code > span > a:first-child::before
+              { content: counter(source-line);
+                position: relative; left: -1em; text-align: right; vertical-align: baseline;
+                border: none; display: inline-block;
+                -webkit-touch-callout: none; -webkit-user-select: none;
+                -khtml-user-select: none; -moz-user-select: none;
+                -ms-user-select: none; user-select: none;
+                padding: 0 4px; width: 4em;
+                color: #aaaaaa;
+              }
+            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+            div.sourceCode
+              {   }
+            @media screen {
+            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+            }
+            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+            code span.at { color: #7d9029; } /* Attribute */
+            code span.bn { color: #40a070; } /* BaseN */
+            code span.bu { } /* BuiltIn */
+            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+            code span.ch { color: #4070a0; } /* Char */
+            code span.cn { color: #880000; } /* Constant */
+            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+            code span.dt { color: #902000; } /* DataType */
+            code span.dv { color: #40a070; } /* DecVal */
+            code span.er { color: #ff0000; font-weight: bold; } /* Error */
+            code span.ex { } /* Extension */
+            code span.fl { color: #40a070; } /* Float */
+            code span.fu { color: #06287e; } /* Function */
+            code span.im { } /* Import */
+            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+            code span.op { color: #666666; } /* Operator */
+            code span.ot { color: #007020; } /* Other */
+            code span.pp { color: #bc7a00; } /* Preprocessor */
+            code span.sc { color: #4070a0; } /* SpecialChar */
+            code span.ss { color: #bb6688; } /* SpecialString */
+            code span.st { color: #4070a0; } /* String */
+            code span.va { color: #19177c; } /* Variable */
+            code span.vs { color: #4070a0; } /* VerbatimString */
+            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+        </style>
+                        <link rel="stylesheet" href="style.css" />
+                                             
+    </head>
+
+    <body>
+
+
+        <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+                        <div class="uk-grid" data-uk-grid-margin>
+                <div class="uk-width-1-1">
+                    <h1 class="uk-heading-large">PartiQL Developer’s Guide</h1>
+                                        <p class="uk-text-large">Ion Team</p>
+                                    </div>
+            </div>
+            
+            <div class="uk-grid" data-uk-grid-margin >          
+                <div class="uk-width-medium-1-4">
+                    <div class="uk-overflow-container" data-uk-sticky="{top:25,media: 768}">
+                        <div class="uk-panel uk-panel-box menu-begin" >
+
+                                                        <ul>
+                                                        <li><a href="#preface">Preface</a>
+                                                        <ul>
+                                                        <li><a href="#conventions">Conventions</a></li>
+                                                        <li><a href="#further-reading">Further Reading</a></li>
+                                                        <li><a href="#bug-reports">Bug Reports</a></li>
+                                                        </ul></li>
+                                                        <li><a href="#contributions">Contributions</a></li>
+                                                        <li><a href="#partiql-design-overview">PartiQL Design Overview</a>
+                                                        <ul>
+                                                        <li><a href="#partiql-parser-compiler-and-evaluator-design">PartiQL Parser, Compiler, and Evaluator Design</a>
+                                                        <ul>
+                                                        <li><a href="#context-threading-example">Context Threading Example</a></li>
+                                                        <li><a href="#evaluation-strategy">Evaluation Strategy</a></li>
+                                                        </ul></li>
+                                                        </ul></li>
+                                                        <li><a href="#introduction-to-the-exprnode-ast">Introduction to the ExprNode AST</a>
+                                                        <ul>
+                                                        <li><a href="#it-is-actually-a-tree">It <em>is</em> Actually a Tree</a></li>
+                                                        <li><a href="#its-immutable">It’s Immutable</a></li>
+                                                        <li><a href="#design-patterns-used-with-the-ast">Design Patterns Used with the AST</a>
+                                                        <ul>
+                                                        <li><a href="#inheritance-mirrors-the-partiql-grammar">Inheritance Mirrors The PartiQL Grammar</a></li>
+                                                        <li><a href="#data-classes">Data Classes</a></li>
+                                                        <li><a href="#when-as-expression-over-sealed-type-derived-classes">When-As-Expression over Sealed Type Derived Classes</a></li>
+                                                        <li><a href="#destructuring">Destructuring</a></li>
+                                                        <li><a href="#arbitrary-meta-information-can-be-attached-to-any-node">Arbitrary Meta Information Can Be Attached to Any Node</a></li>
+                                                        </ul></li>
+                                                        <li><a href="#rules-for-working-with-the-ast">Rules for working with the AST</a></li>
+                                                        </ul></li>
+                                                        <li><a href="#partiql-ast">PartiQL AST</a>
+                                                        <ul>
+                                                        <li><a href="#notation">Notation</a>
+                                                        <ul>
+                                                        <li><a href="#abusing-grammar-notation">Abusing Grammar notation</a></li>
+                                                        <li><a href="#ellipsis">Ellipsis</a></li>
+                                                        <li><a href="#referencing-the-ion-text-specification">Referencing the Ion Text Specification</a></li>
+                                                        </ul></li>
+                                                        <li><a href="#partiql-ast-data-definition">PartiQL AST data definition</a>
+                                                        <ul>
+                                                        <li><a href="#partiql-ast-grammar">PartiQL AST “Grammar”</a></li>
+                                                        </ul></li>
+                                                        <li><a href="#examples">Examples</a>
+                                                        <ul>
+                                                        <li><a href="#e1-select-from-a">E1 : <code>select * from a</code></a></li>
+                                                        <li><a href="#e2-select-a-as-x-from-a">E2 : <code>select a as x from a</code></a></li>
+                                                        <li><a href="#e3-select-x-from-a-as-x">E3 : <code>select x from a as x</code></a></li>
+                                                        <li><a href="#e4-select-avga.id-from-a">E4 : <code>select AVG(a.id) from a</code></a></li>
+                                                        <li><a href="#e5-select-from-a-where-a.price-100">E5 : <code>select * from a where a.price &gt; 100</code></a></li>
+                                                        <li><a href="#e6-select-a-b-from-data-group-by-a-b">E6 : <code>SELECT a, b FROM data GROUP BY a, b</code></a></li>
+                                                        <li><a href="#e7-select-a-from-data-group-by-a-as-x-group-by-g">E7 : <code>SELECT a FROM data GROUP BY a as x GROUP BY g</code></a></li>
+                                                        </ul></li>
+                                                        <li><a href="#callouts">Callouts</a></li>
+                                                        <li><a href="#todo">ToDo</a></li>
+                                                        </ul></li>
+                                                        <li><a href="#faq">FAQ</a></li>
+                                                        </ul>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-medium-3-4">
+<h1 id="preface">Preface</h1>
+<p>The developer’s guide aims to provide more detailed information about PartiQL’s implementation and design.</p>
+<p><em>This document is an early draft, contributions welcome!</em></p>
+<h2 id="conventions">Conventions</h2>
+<p><em>TBD</em></p>
+<h2 id="further-reading">Further Reading</h2>
+<p><em>TBD</em></p>
+<h2 id="bug-reports">Bug Reports</h2>
+<p>We welcome you to use the GitHub issue tracker to report bugs or suggest features.</p>
+<p>When filing an issue, please check existing open, or recently closed, issues to make sure somebody else hasn’t already reported the issue. Please try to include as much information as you can. Details like these are incredibly useful:</p>
+<ul>
+<li>A reproducible test case or series of steps</li>
+<li>The version of our code being used</li>
+<li>Any modifications you’ve made relevant to the bug</li>
+<li>Anything unusual about your environment or deployment</li>
+</ul>
+<h1 id="contributions">Contributions</h1>
+<p>See our <a href="https://github.com/partiql/partiql-lang-kotlin/blob/345a97c3c79c4a2beb8d44185221ee419b82e08a/CONTRIBUTING.md">contribute guide</a>.</p>
+<h1 id="partiql-design-overview">PartiQL Design Overview</h1>
+<h2 id="partiql-parser-compiler-and-evaluator-design">PartiQL Parser, Compiler, and Evaluator Design</h2>
+<p>This document provides the high-level design overview of the PartiQL parser and evaluator. The high-level pipeline of compilation is illustrated as follows:</p>
+<figure>
+<img src="img/parser-compiler.png" alt="" /><figcaption>Parser and Compiler Diagram</figcaption>
+</figure>
+<ul>
+<li>The <strong>lexer</strong> is a hybrid direct/table driven lexical analyzer for PartiQL lexemes that produce high-level tokens.
+<ul>
+<li>SQL is very keyword heavy, so having our own lexer implementation allows us to more easily normalize things like keywords that consist of multiple lexemes (e.g. <code>CHARACTER VARYING</code>)</li>
+</ul></li>
+<li>The <strong>parser</strong> is a basic <a href="https://en.wikipedia.org/wiki/Recursive_descent_parser">recursive decent parser</a> for the PartiQL language that produces an AST as an Ion S-expression.
+<ul>
+<li>For infix operator parsing, the parser is implemented as a Top-Down Operator Precedence (TDOP) <a href="http://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing">Pratt parser</a>.</li>
+</ul></li>
+<li>The <strong>semantic analyzer</strong> is a placeholder for general purpose semantic analysis. This is not yet implemented, but important optimizations such as determining which paths/columns are relevant for a given query will be done by this phase. Decoupling of the parser from the compiler, means that any application can do their own validation and processing of the AST.</li>
+<li>The <strong>compiler</strong> converts the AST nodes into <a href="https://www.complang.tuwien.ac.at/anton/lvas/sem06w/fest.pdf">context threaded</a> code.</li>
+</ul>
+<h3 id="context-threading-example">Context Threading Example</h3>
+<p>Context threaded code is used as the interpreter strategy to align the <em>virtual program counter</em> with the JVM’s <em>program counter</em>. This is done by <em>threading</em> the operations of the AST nodes into a tree of indirect subroutine calls. Specifically, on the JVM, this is modeled as a series of lambdas bound to a simple functional interface.</p>
+<p>We can illustrate this technique with a simple integer evaluator. Consider the following interface that represents an evaluation:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">interface</span> <span class="bu">Operation</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="co">/**</span> Evaluates the operation against the given variables<span class="co">. */</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  <span class="dt">int</span> <span class="fu">eval</span>(<span class="bu">Map</span>&lt;<span class="bu">String</span>, <span class="bu">Integer</span>&gt; env);</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>}</span></code></pre></div>
+<p>We can <em>“hand code”</em> a simple compilation of <code>A + B</code> as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Operation</span> <span class="fu">compilePlus</span>(<span class="bu">Operation</span> left, <span class="bu">Operation</span> right) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="kw">return</span> env -&gt; left.<span class="fu">eval</span>(env) + right.<span class="fu">eval</span>(env);</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Operation</span> <span class="fu">compileLoad</span>(<span class="bu">String</span> name) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="kw">return</span> env -&gt; env.<span class="fu">get</span>(name);</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a><span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span>(<span class="bu">String</span>[] args) <span class="kw">throws</span> <span class="bu">Exception</span> {</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>  <span class="co">// a &quot;hand&quot; compilation of A + B</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  <span class="bu">Operation</span> aPlusB = <span class="fu">compilePlus</span>(<span class="fu">compileLoad</span>(<span class="st">&quot;A&quot;</span>), <span class="fu">compileLoad</span>(<span class="st">&quot;B&quot;</span>));</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>  <span class="co">// the variables to operate against (i.e. the environment)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="bu">Map</span>&lt;<span class="bu">String</span>, <span class="bu">Integer</span>&gt; globals = <span class="kw">new</span> <span class="bu">HashMap</span>&lt;&gt;();</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>  globals.<span class="fu">put</span>(<span class="st">&quot;A&quot;</span>, <span class="dv">1</span>);</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>  globals.<span class="fu">put</span>(<span class="st">&quot;B&quot;</span>, <span class="dv">2</span>);</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>  <span class="co">// evaluate the &quot;compiled&quot; expression</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>  <span class="bu">System</span>.<span class="fu">out</span>.<span class="fu">println</span>(aPlusB.<span class="fu">eval</span>(globals));</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a>}</span></code></pre></div>
+<p>It can be seen that the above example leverages lexical closures (lambdas) to build an object graph of state to represent the actual interpretation, the actual dispatch leverages the native call stack differs from straight compiled code in that each “opcode” is a virtual call.</p>
+<h3 id="evaluation-strategy">Evaluation Strategy</h3>
+<p>Evaluation is done by first compiling source text of an PartiQL expression into an instance of <code>Expression</code> which provides the entry point to evaluation:</p>
+<figure>
+<img src="img/compiler-class.png" alt="" /><figcaption>Parser/Compiler/Expression Class Diagram</figcaption>
+</figure>
+<p>At the core of all evaluation is an interface, <code>ExprValue</code>, that represents all values:</p>
+<figure>
+<img src="img/expr-value-class.png" alt="" /><figcaption>ExprValue Class Diagram</figcaption>
+</figure>
+<p>This interface enables any application embedding the evaluator to control and provide data used for evaluation. The other benefit of this approach is that an interface allows for <em>lazy</em> evaluation. That is, the evaluator can return an <code>ExprValue</code> that has not been fully evaluated. This approach allows for the streaming of values when possible.</p>
+<p>All <code>ExprValue</code> implementations indicate what type of value they are and implement the parts of the interface appropriate for that type. Relational operations are modeled through the <code>Iterable</code>/<code>Iterator</code> interface. Accessing scalar data is done through the <code>Scalar</code> interface, and accessing fields by name or position are done through the <code>Bindings</code> and <code>OrdinalBindings</code> interfaces respectively.</p>
+<p>Modeling relations (collections) as <code>Iterable</code>/<code>Iterator</code> allows the evaluator to compose the relational operators (e.g. projection, filter, joins) as lazy <code>Iterators</code> that are composed with one another. This functional pipeline is very similar to what is done in full query engines and is also similar to how <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html">Java 8 streams</a> work.</p>
+<h4 id="lazy-evaluation-example">Lazy Evaluation Example</h4>
+<p>We can use our simple integer evaluator example to demonstrate how the PartiQL evaluator lazily evaluates. Let’s change this example to add a functional interface as the integer value (i.e. a <strong><a href="https://en.wikipedia.org/wiki/Thunk">thunk</a></strong> representing an integer).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">interface</span> IntValue {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="dt">int</span> <span class="fu">intValue</span>();</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="kw">interface</span> <span class="bu">Operation</span> {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="co">/**</span> Evaluates the operation against the given variables<span class="co">. */</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    IntValue <span class="fu">eval</span>(<span class="bu">Map</span>&lt;<span class="bu">String</span>, IntValue&gt; env);</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>}</span></code></pre></div>
+<p>Here, we are adding an additional layer of indirection for the result. This allows the evaluator to create values that defer computation. We can then refactor our toy evaluator to be lazy.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Operation</span> <span class="fu">compilePlus</span>(<span class="bu">Operation</span> left, <span class="bu">Operation</span> right) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  <span class="kw">return</span> env -&gt;</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="co">// we are returning a value that computes the actual addition when intValue() is invoked</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    () -&gt; left.<span class="fu">eval</span>(env).<span class="fu">intValue</span>() + right.<span class="fu">eval</span>(env).<span class="fu">intValue</span>();</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Operation</span> <span class="fu">compileLoad</span>(<span class="bu">String</span> name) {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>  <span class="kw">return</span> env -&gt; env.<span class="fu">get</span>(name);</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>}</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span>(<span class="bu">String</span>[] args) <span class="kw">throws</span> <span class="bu">Exception</span> {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>  <span class="co">// a &quot;hand&quot; compilation of A + B</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>  <span class="bu">Operation</span> aPlusB = <span class="fu">compilePlus</span>(<span class="fu">compileLoad</span>(<span class="st">&quot;A&quot;</span>), <span class="fu">compileLoad</span>(<span class="st">&quot;B&quot;</span>));</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>  <span class="co">// the variables to operate against (i.e. the environment)</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>  <span class="bu">Map</span>&lt;<span class="bu">String</span>, IntValue&gt; globals = <span class="kw">new</span> <span class="bu">HashMap</span>&lt;&gt;();</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>  <span class="co">// trivial values </span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a>  globals.<span class="fu">put</span>(<span class="st">&quot;A&quot;</span>, () -&gt; <span class="dv">1</span>);</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a>  globals.<span class="fu">put</span>(<span class="st">&quot;B&quot;</span>, () -&gt; <span class="dv">2</span>);</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a>  <span class="co">// evaluate the &quot;compiled&quot; expression to a lazy value</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a>  IntValue result = aPlusB.<span class="fu">eval</span>(globals);</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a>  <span class="co">// result doesn&#39;t get computed until here</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a>  <span class="bu">System</span>.<span class="fu">out</span>.<span class="fu">println</span>(result.<span class="fu">intValue</span>());</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>}</span></code></pre></div>
+<p>Note that now, all values require an additional virtual dispatch to get the underlying value. <code>ExprValue</code> can be thought of as a thunk for all of the types of values in PartiQL.</p>
+<h1 id="introduction-to-the-exprnode-ast">Introduction to the ExprNode AST</h1>
+<p>It seems the term “AST” is often extended to mean more things than just “Abstract Syntax Tree” and our use of the term is no different. A better term might have been “Abstract Semantic Tree” because our AST was defined with the goal of modeling the intent of the PartiQL source and <em>not</em> the exact syntax. Thus, the original SQL from which an AST was constituted cannot be derived, however the <em>semantics</em> of that SQL are guaranteed to be preserved. One example that demonstrates this is the fact that we model a <code>CROSS JOIN</code> in the same way that we model an <code>INNER JOIN</code> with a condition of <code>TRUE</code>. Semantically, these have the exact same function and so they also have the same representation in the AST.</p>
+<h2 id="it-is-actually-a-tree">It <em>is</em> Actually a Tree</h2>
+<p>Language implementations often use the term “Abstract Syntax Tree” to refer to a data structure that is actually a graph. Our implementation for PartiQL’s AST is a tree and <em>not</em> a graph. It contains no cycles and each node can only reference its children.</p>
+<h2 id="its-immutable">It’s Immutable</h2>
+<p>No mechanism has been provided to mutate an instance of the AST after it has been instantiated. Modifications to an existing tree must use cloning re-writes–for instance, a visitor pattern that returns a modified version of the input tree can be utilized.</p>
+<h2 id="design-patterns-used-with-the-ast">Design Patterns Used with the AST</h2>
+<p>The AST employs a number of patterns and utilizes certain features of Kotlin to aid with the development process. Without any introduction, the reasoning behind these patterns may not be completely apparent at first glance. What follows is an is an attempt to document those patterns and features.</p>
+<h3 id="inheritance-mirrors-the-partiql-grammar">Inheritance Mirrors The PartiQL Grammar</h3>
+<p>The top-most type of the AST is <code>org.partiql.lang.ast.ExprNode</code>. Most of the classes of the AST derive from this class. Most child nodes are also of type <code>ExprNode</code>. However, there are several cases where the types of child nodes that are allowed are constrained (or extended) by PartiQL’s grammar. For example, not every type of <code>ExprNode</code> can exist as components of a path expression (i.e. <code>a.b.c</code>). Additionally, some path components are allowed that do not make sense outside of the context of a path expression (i.e. <code>a.*.b</code> and <code>a[*].b</code>). If <em>all</em> nodes of the AST inherited from <code>ExprNode</code> it would be easy to accidentally construct ASTs which are structurally invalid. Thus, each grammar context has a different base class.</p>
+<p>This pattern enlists the assistance of the Kotlin compiler to ensure that ASTs are constructed in a manner that is structurally valid. This works so well that for the most part, [ExprNodeCompiler][org.partiql.lang.eval.ExprNodeCompiler] needs to include very few structural checks on the AST. Mostly, it is possible to assume that if the compiler allowed the tree to be instantiated, then it is structurally valid. (However, that does not mean it is semantically valid.)</p>
+<p>The base classes are:</p>
+<ul>
+<li><code>org.partiql.lang.ast.ExprNode</code>, for any expression that is self contained and has a value.</li>
+<li><code>org.partiql.lang.ast.SelectListItem</code>, for expressions that may appear between <code>SELECT</code> … <code>FROM</code>.</li>
+<li><code>org.partiql.lang.ast.FromSource</code>, for expressions that are data sources in a <code>FROM</code> clause.</li>
+<li><code>org.partiql.lang.ast.PathComponent</code>, for the components of a path expression.</li>
+<li><code>org.partiql.lang.ast.SelectProjection</code>, for the type of projection used by a <code>SELECT</code>,<code>SELECT VALUE</code> or <code>PIVOT</code> query. This isn’t directly related to the grammar but is convenient to represent in this manner.</li>
+<li><code>org.partiql.lang.ast.DataManipulation</code>, for data manipulation expressions that may optionally be wrapped with <code>FROM ... WHERE ...</code>.</li>
+<li><code>org.partiql.lang.DmlOperation</code>, for the data manipulation operation itself (e.g. <code>INSERT INTO ...</code>)</li>
+</ul>
+<p>All base classes of the AST are <a href="https://kotlinlang.org/docs/reference/sealed-classes.html">sealed</a> classes.</p>
+<p>To keep the inheritance hierarchy manageable, the inheritance depth does not exceed 1.</p>
+<h3 id="data-classes">Data Classes</h3>
+<p>Kotlin <a href="https://kotlinlang.org/docs/reference/data-classes.html">data classes</a> have several useful properties which aid the developer when working with the AST. Those features are the compiler generated methods shown below.</p>
+<ul>
+<li><code>equals()</code>, can be used to compare two nodes–for instance, during unit testing.</li>
+<li><code>toString()</code>, highly useful during debugging.</li>
+<li><code>componentN()</code>, enables the use of destructuring (see the section on destructuring below).</li>
+<li><code>copy()</code>, performs a shallow copy of the node, useful during cloning re-writes.</li>
+</ul>
+<h3 id="when-as-expression-over-sealed-type-derived-classes">When-As-Expression over Sealed Type Derived Classes</h3>
+<p>Kotlin’s <a href="https://kotlinlang.org/docs/reference/control-flow.html#when-expression">when</a> can be used as a statement or as an expression.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>    <span class="kw">sealed</span> <span class="kw">class</span> Foo</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    <span class="kw">class</span> Bar : <span class="dt">Foo</span>(<span class="kw">val</span> <span class="va">i</span>: <span class="dt">Int</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="kw">class</span> Bat : <span class="dt">Foo</span>(<span class="kw">val</span> <span class="va">n</span>: <span class="dt">String</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    <span class="kw">class</span> Bonk : <span class="dt">Foo</span>(<span class="kw">val</span> <span class="va">o</span>: <span class="dt">Boolean</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    <span class="kw">val</span> <span class="va">foo</span> = <span class="co">//... an instance of Foo ...</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    <span class="co">// This a statement because the value is not consumed...</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>    <span class="cf">when</span>(foo) -&gt; {</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>        <span class="kw">is</span> Bar -&gt; { println(<span class="st">&quot;It&#39;s a bar!&quot;</span> }</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>        <span class="kw">is</span> Bat -&gt; { println(<span class="st">&quot;It&#39;s a bat!&quot;</span> }</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>        <span class="co">//A compiler warning is issued because no case for Bonk exists.</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>    }</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>    <span class="co">// This is an expression because the value is assigned to variable foo.</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>    <span class="kw">val</span> <span class="va">foo</span> = <span class="cf">when</span>(bar) { </span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>        <span class="kw">is</span> Bat -&gt; <span class="st">&quot;It&#39;s a bat!&quot;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a>        <span class="kw">is</span> Baz -&gt; <span class="st">&quot;It&#39;s a baz!&quot;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a>        <span class="co">//A compile-time error is generated because there is no case for Bonk -- when branches must be exhaustive.</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a>    }</span></code></pre></div>
+<p>When <code>when</code> is used as an expression Kotlin requires that the cases are exhaustive, meaning that all possible branches are included or it has an <code>else</code> clause. Unfortunately, the Kotlin compiler issues a warning instead of an error when the result of the <code>when</code> expression is not consumed. We have developed a simple way to gain these compile-time checks for <code>when</code> statements as well. This method involves treating them as expressions.</p>
+<p>Consider the following:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>    <span class="cf">when</span>(expr) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>        <span class="kw">is</span> VariableReference -&gt; case {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>            ...</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>        }</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>        <span class="kw">is</span> Literal -&gt; case {</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>            ...</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>        }</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>        <span class="co">// and so on for all types derived from ExprNode</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>    }.toUnit()</span></code></pre></div>
+<p>In order to help make sense of this, the definitions of <code>case</code> and <code>toUnit</code> follow:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>    <span class="kw">inline</span> <span class="kw">fun</span> <span class="fu">case</span>(<span class="va">block</span>: () -&gt; <span class="dt">Unit</span>): <span class="dt">WhenAsExpressionHelper</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>        block()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>        <span class="kw">return</span> WhenAsExpressionHelper.Instance</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>    }</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>    <span class="kw">class</span> WhenAsExpressionHelper <span class="kw">private</span> <span class="kw">constructor</span>() {</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>        <span class="kw">fun</span> <span class="fu">toUnit</span>() {}</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>        <span class="kw">companion</span> <span class="kw">object</span> {</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>            <span class="kw">val</span> <span class="va">Instance</span> = WhenAsExpressionHelper()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>        }</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>    }</span></code></pre></div>
+<p>Every branch of the <code>when</code> expression calls the <code>case()</code> function whose first argument is a literal lambda. <code>case()</code> invokes the lambda and returns the sentinel instance of <code>WhenAsExpressionHelper</code>. This forces <code>when</code> to have a result. <code>WhenAsExpressionHelper</code> then has a single method, <code>toUnit()</code>, which does nothing–its purpose however is to consume of result the <code>when</code> expression.</p>
+<p>When <code>case()</code> and <code>toUnit()</code> are used together in this fashion the Kotlin compiler considers the <code>when</code> an expression and will require that a branch exists for all derived types or that an <code>else</code> branch is present.</p>
+<p>This helps improve maintainability of code that uses the AST because when a new type that inherits from <code>ExprNode</code> is added then those <code>when</code> expressions which do not include an <code>else</code> branch will generate compiler errors and the developer will know they need to be updated to include the new node type. For this reason, the developer should carefully consider the use of <code>else</code> branches and instead should consider explicit empty branches for each of the derived types instead.</p>
+<p>Also note that the use of <code>case()</code> and <code>toUnit()</code> is <em>not</em> needed when the value of the <code>when</code> expression is consumed by other means. For example, the compiler will still require a branch for every derived type in this scenario because the result of the <code>when</code> becomes the function’s return value:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>   <span class="kw">fun</span> <span class="fu">transformNode</span>(<span class="va">exprNode</span>: <span class="dt">ExprNode</span>): <span class="dt">ExprNode</span> = <span class="cf">when</span>(exprNode) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>       <span class="kw">is</span> Literal -&gt; { <span class="co">// case() is not needed</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>           <span class="co">//Perform cloning rewrite</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>           ...</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>       }</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>       <span class="kw">is</span> VariableReference -&gt; { <span class="co">// case() is not needed</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>           <span class="co">//Perform cloning rewrite</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>           ...</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>       }</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>       <span class="co">//and so on for all nodes</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a>       ...</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>   } <span class="co">//.toUnit() is not needed</span></span></code></pre></div>
+<h3 id="destructuring">Destructuring</h3>
+<p>Another potential maintainability issue can arise when new properties are added to existing node types. Knowing the locations of the code which must be modified to account for the new property can be a challenge.</p>
+<p>Another way in which the Kotlin compiler can be enlisted to help improve code maintainability is with the use of <a href="https://kotlinlang.org/docs/reference/multi-declarations.html">destructuring</a>. There is also a shortcoming in Kotlin’s destructuring feature which we solve almost by accident.</p>
+<p>Consider the following:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>    <span class="cf">when</span>(expr) {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>        <span class="co">//...</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>        <span class="kw">is</span> VariableReference -&gt; {</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>            <span class="kw">val</span> (<span class="va">id</span>, caseSensitivity) = expr</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>        }</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>        <span class="co">//...</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    }</span></code></pre></div>
+<p>Unlike some languages, Kotlin’s destructuring feature doesn’t require that all the properties are mapped to variables on the left side of <code>=</code>. Unfortunately, this means that if a new property is added to <code>VariableReference</code>, the above example of destructuring will not result in an compile error of any kind.</p>
+<p>By chance, all of the node types in the AST contain an additional property: <code>metas: MetaContainer</code>. The fact that this is <em>always</em> the last property defined in a node type is intentional. In fact, any and all new properties should be added immediately <em>before</em> the <code>metas: MetaContainer</code>. Consider:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>    <span class="kw">val</span> (<span class="va">id</span>, caseSensitivity, m) = expr</span></code></pre></div>
+<p>If a new property is added to <code>VariableReference</code> <em>before</em> <code>metas</code>, the type of varialbe <code>m</code> will be the type of that new property and <em>this</em> will result in compile-time errors from the Kotlin compiler at the locations where <code>m</code> is referenced. This is great for circumstances where <code>m</code> is needed, but there are also many cases where a node’s <code>metas</code> are ignored, and if <code>m</code> is unused, the Kotlin compiler will issue a warning. For that scenario use the following:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>    <span class="kw">val</span> (<span class="va">id</span>, caseSensitivity, _: MetaContainer) = varRef</span></code></pre></div>
+<p>The <code>_: MetaContainer</code> component here simply causes a compile-time assertion that the third property of <code>VariableReference</code> is of type <code>MetaContainer</code>, resulting in a compile-time error whenever a new property is added.</p>
+<h3 id="arbitrary-meta-information-can-be-attached-to-any-node">Arbitrary Meta Information Can Be Attached to Any Node</h3>
+<p>TODO: leaving this part unspecified for the moment because there is still some uncertainty surrounding the how metas work.</p>
+<h2 id="rules-for-working-with-the-ast">Rules for working with the AST</h2>
+<ul>
+<li>Always add new properties <em>before</em> the <code>metas: MetaContainer</code> of a new property.</li>
+<li>When using <code>when</code> with a sealed class and branching by derived types as a statement use <code>case()</code> and <code>toUnit()</code> to trick the Kotlin compiler into being helpful.</li>
+<li>When using <code>when</code> with the derived types of a sealed class, use destructuring in each branch where possible.</li>
+</ul>
+<h1 id="partiql-ast">PartiQL AST</h1>
+<p>By AST in this document we refer to the data structure used to represent an PartiQL query. This is also the version of the AST provided to clients that consume the PartiQL AST.</p>
+<h2 id="notation">Notation</h2>
+<h3 id="abusing-grammar-notation">Abusing Grammar notation</h3>
+<p>We borrow notation used for grammars to denote data structures and the alternatives for each data structure. You can think of production rule as a sum type, e.g.,</p>
+<pre><code>LIST ::= `null` | `(` `cell` INTEGER LIST `)`</code></pre>
+<p>defines a linked list of <code>INTEGER</code>s as being one of</p>
+<ul>
+<li>the empty list, denoted by <code>null</code>, or,</li>
+<li>the list of 1 or more integers, e.g., <code>(cell 1 (cell 2 null))</code> is the list holding the numbers 1 and 2 in that order.</li>
+</ul>
+<p>Terminals are in lowercase and surrounded with backticks (`). Terminals denote literals.</p>
+<p>Non-Terminals are in all caps and denote abstract type names.</p>
+<p>The parallel bar <code>|</code> denotes alternatives.</p>
+<p>Square brackets <code>[ ]</code> denote optional elements</p>
+<h3 id="ellipsis">Ellipsis</h3>
+<p>Ellipsis <code>...</code> mean 0 or more of the element <em>preceding</em> the ellipsis. We use parenthesis to denote a composite element</p>
+<ul>
+<li><code>X ...</code> 0 or more <code>X</code></li>
+<li><code>(op X Y) ...</code> 0 or more <code>(op X Y)</code>, i.e., <code>(op X Y) (op X Y) (op X Y)</code></li>
+</ul>
+<h3 id="referencing-the-ion-text-specification">Referencing the Ion Text Specification</h3>
+<p><code>ITS(&lt;type&gt;)</code> refers to the <a href="https://amzn.github.io/ion-docs/spec.html">Ion Text Specification</a> for the Ion <code>type</code> passed as an argument. For example, <code>ITS(boolean)</code> means lookup the section on <code>boolean</code> in the Ion Text Specification.</p>
+<p>The AST is a valid Ion S-expression, <code>SEXP</code>. For the purposes of this documentation we use the following grammar for Ion and it’s <code>SEXP</code>. The grammar <em>should</em> be a refactoring of Ion’s grammar that allows us to create more convenient groupings of the Ion Text grammar for our purposes.</p>
+<pre><code>ION_VALUE ::=
+              ATOM
+            | SEXP
+            | LIST
+            | STRUCT
+
+ATOM      ::=
+              BOOL
+            | NUMBER
+            | TIMESTAMP
+            | STRING
+            | SYMBOL
+            | BLOB
+            | CLOB
+            | NULL
+
+
+BOOL      ::= ITS(boolean)
+NUMBER    ::=
+              INTEGER
+            | FLOAT
+            | DECIMAL
+
+INTEGER   ::= ITS(integer)
+FLOAT     ::= ITS(float)
+DECIMAL   ::= ITS(decimal)
+
+TIMESTAMP ::= ITS(timestamp)
+STRING    ::= ITS(string)
+SYMBOL    ::= ITS(symbol)
+BLOB      ::= ITS(blob)
+CLOB      ::= ITS(clob)
+NULL      ::= ITS(null)
+
+LIST      ::= ITS(list)
+STRUCT    ::= ITS(structure)
+
+SEXP      ::= `(` ION_VALUE ... `)`</code></pre>
+<p>In the case of <code>SEXP</code> we refer to the name immediately following the <code>SEXP</code> ’s open parenthesis as its <strong>tag</strong>. For example the <code>SEXP</code> <code>(lit 2)</code> is tagged with the symbol <code>lit</code>.</p>
+<h2 id="partiql-ast-data-definition">PartiQL AST data definition</h2>
+<p>Starting with version 1 of the PartiQL AST, each AST must be wrapped in an <code>ast</code> node:</p>
+<pre><code>(ast (version 1)
+     (root EXP))</code></pre>
+<p>If the top-most node of the AST does not have the tag <code>ast</code> then we assume that it is a <a href="README-AST-V0.md">legacy version 0 AST</a>.</p>
+<p>Within <code>(root ...)</code> we represent a valid PartiQL expression as a tree (<code>SEXP</code>) of <strong>optionally</strong> wrapped nodes called <strong>term</strong>s.</p>
+<pre><code>TERM ::= `(` `term` `(` `exp` EXP `)`
+                    `(` `meta` META ...`)` `)`</code></pre>
+<p>The wrapper <code>term</code> contains 2 sub <code>SEXP</code></p>
+<ul>
+<li>the PartiQL expression or expression fragment being wrapped tagged with <code>exp</code></li>
+<li>the meta information for the PartiQL expression or expression fragment tagged with <code>meta</code></li>
+</ul>
+<p>The <code>meta</code> child node of <code>term</code> is optional but usually holds information on the location of the expression in the original query. The definition of <code>META</code> is purposely left open to allow for the addition of meta information on the AST by consumers of the PartiQL such as query rewriters.</p>
+<p>The PartiQL implementation shall use the <code>$</code> prefix for all of its meta node tags. A naming convention such as reverse domain name notation should be used for meta node tags introduced by consumers of the PartiQL AST to avoid naming conflicts.</p>
+<pre><code>META ::= LOC | META_INFO
+
+LOC  ::= `(` `$source_location` `(` `{` `line_num` `:` INTEGER`,` `char_offset` `:` INTEGER `}` `)` `)`
+
+META_INFO ::= `(` SYMBOL `(` ION_VALUE ... `)` `)`</code></pre>
+<p>For example:</p>
+<pre><code>(term (exp (lit customerId))
+      (meta ($source_location ({line_num: 10, char_offset: 12}))
+            (type_env ({ customerId : Symbol })))</code></pre>
+<p>Captures the literal <code>customerId</code> that appears on line <code>10</code> at character offset <code>12</code> in the original query. The term’s meta information also captures the type environment for this expression. In this example the values bound to <code>customerId</code> are expected to be of type <code>Symbol</code>.</p>
+<p><code>EXP</code> defines the alternatives for an <code>SEXP</code> that that can appear inside a <code>term</code> ’s <code>exp</code> tagged <code>SEXP</code>. <strong>For readability, any nested <code>term</code>-wrapped sub components of <code>EXP</code> are not shown in this definition.</strong></p>
+<p>The <code>term</code> wrapper is optional and so the previous example can be stripped down to the semantically equivalent:</p>
+<pre><code>    (lit customerId)</code></pre>
+<h3 id="partiql-ast-grammar">PartiQL AST “Grammar”</h3>
+<pre><code>EXP ::= 
+        `(` `lit` ION_VALUE `)`
+      | `(` `missing` `)`
+      | `(` `id` SYMBOL CASE_SENSITIVITY `)`
+      
+      | `(` `struct` KEY_VALUE ... `)`
+      | `(` `list` EXP ... `)`
+      | `(` `bag`  EXP ... `)`
+      
+      | `(` NARY_OP EXP EXP ... `)`
+      | `(` TYPED_OP EXP TYPE `)` `)`
+      
+      | `(` `path` EXP PATH_ELEMENT... `)`
+      
+      | `(` `call_agg` SYMBOL QSYMBOL EXP `)`
+      | `(` `call_agg_wildcard` `count` `)` 
+      
+      | `(` `simple_case` EXP WHEN [WHEN ...] [ELSE] `)`
+      | `(` `searched_case` WHEN [WHEN ...] [ELSE] `)`
+      
+      | `(` `select` SELECT_LIST
+                     FROM_SOURCE
+                     [ &#39;(&#39; `where&#39; EXP `)` ]
+                     [ GROUP_CLAUSE ]
+                     [ `(` `having` EXP `)` ]
+                     [ `(` `limit` EXP `)` ]
+
+      | `(` `pivot` MEMBER
+                    FROM_SOURCE
+                    [ &#39;(&#39; `where&#39; EXP `)` ]
+                    [ GROUP_CLAUSE ]
+                    [ `(` `having` EXP `)` ]
+                    [ `(` `limit` EXP `)` ]
+
+LENGTH ::= INTEGER
+
+
+TYPE ::= `(` `type` TYPE_NAME [LENGTH [LENGTH]] `)` 
+//NOTE: the two optional length arguments above are meant to capture the length or precision and scale
+//arguments as defined by the SQL-92 spcification for certain data types.  While space exists in the AST
+//for them, they do not apply to the Ion type system and therefore are ignored at during compilation and
+//evaluation times.
+
+CASE_SENSITIVITY ::= `case_sensitive` | `case_insensitive` 
+
+KEY_VALUE ::= &#39;(&#39; EXP EXP &#39;)&#39;
+
+TYPE_NAME ::= `boolean` | `smallint` | `int`  | `float` | `decimal`
+              | `numeric` | `double_precision` | `character` | `character_varying` | `string` 
+              | `symbol` | `varchar` | `list` | `bag` | `struct` 
+              | `clob` | `blob` | `timestamp` | `symbol` | `null` 
+              | `missing` | `null` | `missing`
+
+TYPED_OP ::= `cast` | `is`
+
+NARY_OP ::= // NOTE:  When used with an arity of 1, the operators +, - and NOT function as unary operators.
+          `+` | `-` | `not` | `/` | `*` | `%` 
+        | `&lt;` | `&lt;=` | `&gt;` | `&gt;=` | `&lt;&gt;` 
+        | `and | `or` | `||` | `in` | `call` 
+        | &#39;between` | `like` | `is`
+        | `union | `union_all` 
+        | `intersect` | `intersect_all` 
+        | `except` | `except_all` 
+
+PATH_ELEMNT ::= `(` `path_element` PATH_EXP CASE_SENSITIVITY `)`
+PATH_EXP ::= EXP 
+    | `(` `star` `)`
+    | `(` `star `unpivot` `)`
+
+MEMBER ::= `(` `member` EXP EXP `)`
+
+QSYMBOL ::= `distinct` | `all`
+
+SELECT_LIST ::= `(` PROJECT SELECT_PROJECTION `)`
+
+PROJECT ::= `project` | `project_distinct` 
+
+SELECT_PROJECTION ::= 
+           | `(` `value` EXP `)`
+           | `(` `list` SELECT_LIST_ITEM... `)` 
+           | `(` `list` STAR `)` 
+
+SELECT_LIST_ITEM ::= EXP
+    | `(` `as` SYMBOL EXP `)`
+    | `(` `path_project_all` EXP `)`
+
+FROM_SOURCES ::= `(` `from` FROM_SOURCE `)`
+
+JOIN_TYPE ::= `inner_join` | `outer_join` | `left_join` | `right_join`
+
+FROM_SOURCE_TABLE ::= EXP
+    | `(` `as` SYMBOL EXP `)`
+    | `(` `at` SYMBOL `(` `as` SYMBOL EXP `)` `)`
+    | `(` `unpivot` EXP `)`
+    
+FROM_SOURCE ::= FROM_SOURCE_TABLE
+    | `(` JOIN_TYPE FROM_SOURCE EXP `)`
+
+GROUP_FULL ::= `group` 
+GROUP_PARTIAL ::= `group_partial`
+GROUP_ALL ::= `group_all`
+GROUP_BY_EXP ::= EXP | `(` `as` SYMBOL EXP `)`
+GROUP_KIND ::= GROUP_FULL | GROUP_PARTIAL
+
+GROUP_CLAUSE  ::= 
+    `(`  GROUP_KIND
+         //NOTE:  the `by` node cannot be wrapped in a term (GROUP_BY_EXPs however *can* be wrapped in a term).
+        `(` `by` GROUP_BY_EXP GROUP_BY_EXP... `)` 
+         //NOTE:  the `name` node *can* be wrapped in a term
+        [ `(` `name` SYMBOL `)` ] &#39;)&#39;
+    | `(` GROUP_ALL SYMBOL `)`
+    
+                    
+WHEN ::= `(` `when` EXP EXP `)`
+ELSE ::= `(` `else` EXP `)`
+</code></pre>
+<h2 id="examples">Examples</h2>
+<p>Each example lists:</p>
+<ol type="1">
+<li>The query as a string as the title</li>
+<li>The version 0 AST</li>
+<li><code>=&gt;</code></li>
+<li>The version 1 AST</li>
+</ol>
+<p>The examples show some <code>meta</code>/<code>term</code> nodes based on what meta information is available today. The goal is to annotate all nodes with meta information.</p>
+<h3 id="e1-select-from-a">E1 : <code>select * from a</code></h3>
+<pre><code>(select (project (*))
+    (from (meta (id a case_insensitive)
+                    {line:1, column:15})))</code></pre>
+<p><code>=&gt;</code></p>
+<pre><code>(ast
+    (version 1)
+    (root
+        (term
+            (exp
+                (select
+                    (project
+                        (list
+                            (term
+                                (exp (star))
+                                (meta ($source_location ({line_num:1,char_offset:8}))))))
+                    (from
+                        (term
+                            (exp (id a case_insensitive))
+                            (meta ($source_location ({line_num:1,char_offset:15}))))))))))
+
+</code></pre>
+<h3 id="e2-select-a-as-x-from-a">E2 : <code>select a as x from a</code></h3>
+<pre><code>(select (project (list (meta (as x (meta (id a case_insensitive) 
+                                         {line:1, column:8 }))
+                             { line:1, column:13 })))
+        (from (meta (id a case_insensitive) 
+                    { line:1, column:20 })))</code></pre>
+<p><code>=&gt;</code></p>
+<pre><code>(ast
+    (version 1)
+    (root
+        (term
+            (exp
+                (select
+                    (project
+                        (list
+                            (term
+                                (exp
+                                    (as
+                                        x
+                                        (term (exp (id a case_insensitive))
+                                            (meta ($source_location ({line_num:1,char_offset:8}))))))
+                                (meta ($source_location ({line_num:1,char_offset:13}))))))
+                    (from
+                        (term
+                            (exp (id a case_insensitive))
+                            (metaJ ($source_location ({line_num:1,char_offset:20}))))))))))</code></pre>
+<h3 id="e3-select-x-from-a-as-x">E3 : <code>select x from a as x</code></h3>
+<pre><code>(select (project (list (meta (id x case_insensitive)
+                             { line:1, column:8 })))
+        (from (meta (as x (meta (id a case_insensitive) 
+                                { line:1, column:15 })) 
+                    { line:1, column:20 })))
+</code></pre>
+<p><code>=&gt;</code></p>
+<pre><code>(ast
+    (version 1)
+    (root
+        (term
+            (exp
+                (select
+                    (project
+                        (list
+                            (term
+                                (exp (id x case_insensitive))
+                                (meta ($source_location ({line_num:1,char_offset:8}))))))
+                    (from
+                        (term
+                            (exp
+                                (as
+                                    x
+                                    (term
+                                        (exp (id a case_insensitive))
+                                        (meta ($source_location ({line_num:1,char_offset:15}))))))
+                            (meta
+                                ($source_location ({line_num:1,char_offset:20}))))))))))
+</code></pre>
+<h3 id="e4-select-avga.id-from-a">E4 : <code>select AVG(a.id) from a</code></h3>
+<pre><code>(select (project (list (meta (call_agg avg all (path (meta (id a case_insensitive)
+                                                           { line:1, column:12 }) 
+                                                     (meta (case_insensitive (meta (lit &quot;price&quot;)
+                                                                                   { line:1, column:14 })) 
+                                                           { line:1, column:14 })))
+                             { line:1, column:8 })))
+        (from (meta (id a case_insensitive)
+                    { line:1, column:26 })))</code></pre>
+<p><code>=&gt;</code></p>
+<pre><code>(ast (version 1)
+    (root
+        (term
+            (exp
+                (select
+                    (project
+                        (list
+                            (term
+                                (exp
+                                    (call_agg avg all
+                                        (term
+                                            (exp
+                                                (path
+                                                    (term
+                                                        (exp (id a case_insensitive))
+                                                        (meta ($source_location ({line_num:1,char_offset:12}))))
+                                                    (path_element
+                                                        (term
+                                                            (exp (lit &quot;id&quot;))
+                                                            (meta ($source_location ({line_num:1,char_offset:14}))))
+                                                        case_insensitive)))
+                                            (meta ($source_location ({line_num:1,char_offset:12}))))))
+                                (meta ($source_location ({line_num:1,char_offset:8}))))))
+                    (from
+                        (term
+                            (exp (id a case_insensitive))
+                            (meta ($source_location ({line_num:1,char_offset:23}))))))))))</code></pre>
+<h3 id="e5-select-from-a-where-a.price-100">E5 : <code>select * from a where a.price &gt; 100</code></h3>
+<pre><code>(select (project ( *)) 
+        (from (meta (id a case_insensitive)
+                    { line:1, column:15 }))
+        (where (meta (&gt; ( path (meta (id a case_insensitive)
+                                     { line:1, column:23 }) 
+                               (meta (case_insensitive (meta (lit &quot;price&quot;)
+                                                             { line:1, column:25 })) 
+                                     { line:1, column:25 })) 
+                        (meta (lit 100) 
+                              { line:1, column:33 }))
+                     { line:1, column:31 })))</code></pre>
+<p><code>=&gt;</code></p>
+<pre><code>(ast (version 1)
+    (root
+        (term
+            (exp
+                (select
+                    (project
+                        (list
+                            (term
+                                (exp (star))
+                                (meta
+                                    ($source_location ({line_num:1,char_offset:8} ))))))
+                    (from
+                        (term
+                            (exp (id a case_insensitive))
+                            (meta ($source_location ({line_num:1,char_offset:15} )))))
+                    (where
+                        (term
+                            (exp
+                                (&gt;
+                                    (term
+                                        (exp
+                                            (path
+                                                (term
+                                                    (exp (id a case_insensitive))
+                                                    (meta ($source_location ({line_num:1,char_offset:23} ))))
+                                                (path_element
+                                                    (term
+                                                        (exp (lit &quot;price&quot;))
+                                                        (meta ($source_location ({line_num:1,char_offset:25} ))))
+                                                    case_insensitive)))
+                                        (meta ($source_location ({line_num:1,char_offset:23} ))))
+                                    (term
+                                        (exp (lit 100))
+                                        (meta ($source_location ({line_num:1,char_offset:33} ))))))
+                            (meta ($source_location ({line_num:1,char_offset:31} ))))))))))</code></pre>
+<h3 id="e6-select-a-b-from-data-group-by-a-b">E6 : <code>SELECT a, b FROM data GROUP BY a, b</code></h3>
+<pre><code>(term
+    (exp
+        (select
+            (project
+                (list
+                    (term
+                        (exp
+                            (id a case_insensitive)))))
+            (from
+                (term
+                    (exp
+                        (id data case_insensitive))))
+            (group
+                (by
+                    (term
+                        (exp
+                            (id a case_insensitive)))
+                    (term
+                        (exp
+                            (id b case_insensitive))))))))</code></pre>
+<h3 id="e7-select-a-from-data-group-by-a-as-x-group-by-g">E7 : <code>SELECT a FROM data GROUP BY a as x GROUP BY g</code></h3>
+<pre><code>(term
+    (exp
+        (select
+            (project
+                (list
+                    (term
+                        (exp
+                            (id a case_insensitive)))))
+            (from
+                (term
+                    (exp
+                        (id data case_insensitive))))
+            (group
+                (by
+                    (term
+                        (exp
+                            (as
+                                x
+                                (term
+                                    (exp
+                                        (id a case_insensitive)
+                                    ))))))
+                (term
+                    (exp 
+                        (name g)))))))</code></pre>
+<h2 id="callouts">Callouts</h2>
+<p>Important modifications/additions regarding changes from version 0:</p>
+<ol type="1">
+<li>Some nodes had 2 versions one for the node e.g., <code>is</code> and one for the nodes complement (negation) e.g. <code>is_not</code>
+<ul>
+<li>Removed the complements in favour of a nested <code>(not ..)</code> expression. The nodes affected are <code>like</code>, <code>is</code>,</li>
+</ul></li>
+<li>The <code>*</code> was previously used in multiple places to denote different semantic meanings. This is no longer the case.
+<ul>
+<li><code>SELECT *</code> is now denoted with the tag <code>star</code></li>
+<li><code>SELECT exp.*</code> is now denoted with the tag <code>path_project_all</code></li>
+<li><code>exp[*]</code> and <code>exp.*</code> is still denoted with the <code>(*)</code> and <code>(* unpivot)</code> s-expressions. This is unchanged from version 0.</li>
+</ul></li>
+<li>Path elements (arguments after the first in a path expression) are now contained in a <code>path_element</code> node following this pattern: <code>(path_element EXP CASE_SENSITIVITY)</code>.</li>
+</ol>
+<h2 id="todo">ToDo</h2>
+<p>Need to address/flesh out</p>
+<ol type="1">
+<li>Order by (https://github.com/partiql/partiql-lang-kotlin/issues/47)</li>
+</ol>
+<h1 id="faq">FAQ</h1>
+<p>TODO: add questions to the FAQ.</p>                    
+                </div>
+            </div>
+
+        </div>
+    </body>
+</html>

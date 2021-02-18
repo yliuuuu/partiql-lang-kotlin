@@ -165,6 +165,8 @@
                                                         <li><a href="#trim">TRIM</a></li>
                                                         <li><a href="#upper">UPPER</a></li>
                                                         <li><a href="#utcnow">UTCNOW</a></li>
+                                                        <li><a href="#unix_timestamp">UNIX_TIMESTAMP</a></li>
+                                                        <li><a href="#from_unixtime">FROM_UNIXTIME</a></li>
                                                         </ul></li>
                                                         </ul></li>
                                                         <li><a href="#references">References</a></li>
@@ -1627,6 +1629,39 @@ Lilikoi unicorn</code></pre>
 </dd>
 </dl>
 <div class="sourceCode" id="cb58"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true"></a>UTCNOW() <span class="co">-- 2017-10-13T16:02:11.123Z </span></span></code></pre></div>
+<h3 id="unix_timestamp">UNIX_TIMESTAMP</h3>
+<p>With no <code>timestamp</code> argument, returns the number of seconds since the last epoch (‘1970-01-01 00:00:00’ UTC).</p>
+<p>With a <code>timestamp</code> argument, returns the number of seconds from the last epoch to the given <code>timestamp</code> (possibly negative).</p>
+<p>Signature : <code>UNIX_TIMESTAMP: [Timestamp] -&gt; Integer|Decimal</code></p>
+<p>Header : <code>UNIX_TIMESTAMP([timestamp])</code></p>
+<p>Purpose : <code>UNIX_TIMESTAMP()</code> called without a <code>timestamp</code> argument returns the number of whole seconds since the last epoch (‘1970-01-01 00:00:00’ UTC) as an Integer using <code>UTCNOW</code>.</p>
+<p><code>UNIX_TIMESTAMP()</code> called with a <code>timestamp</code> argument returns returns the number of seconds from the last epoch to the <code>timestamp</code> argument. If given a <code>timestamp</code> before the last epoch, <code>UNIX_TIMESTAMP</code> will return the number of seconds before the last epoch as a negative number. The return value will be a Decimal if and only if the given <code>timestamp</code> has a fractional seconds part.</p>
+<p>Examples :</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true"></a>UNIX_TIMESTAMP()                            <span class="co">-- 1507910531 (if current time is `2017-10-13T16:02:11Z`; # of seconds since last epoch as an Integer)</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true"></a>UNIX_TIMESTAMP(`2020T`)                     <span class="co">-- 1577836800 (seconds from 2020 to the last epoch as an Integer)</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span>01T`)                  <span class="co">-- &#39;&#39;</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)               <span class="co">-- &#39;&#39;</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00Z</span>`)         <span class="co">-- &#39;&#39;</span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00Z</span>`)      <span class="co">-- &#39;&#39;</span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.0</span>Z`)    <span class="co">-- 1577836800. (seconds from 2020 to the last epoch as a Decimal)</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.00</span>Z`)   <span class="co">-- &#39;&#39;</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z`)  <span class="co">-- &#39;&#39;</span></span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.100</span>Z`)  <span class="co">-- 1577836800.1</span></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true"></a>UNIX_TIMESTAMP(`1969T`)                     <span class="co">-- -31536000 (timestamp is before last epoch)</span></span></code></pre></div>
+<h3 id="from_unixtime">FROM_UNIXTIME</h3>
+<p>Converts the given unix epoch into a timestamp.</p>
+<p>Signature : <code>FROM_UNIXTIME: Integer|Decimal -&gt; Timestamp</code></p>
+<p>Header : <code>FROM_UNIXTIME(unix_timestamp)</code></p>
+<p>Purpose : When given a non-negative numeric value, returns a timestamp after the last epoch. When given a negative numeric value, returns a timestamp before the last epoch. The returned timestamp has fractional seconds depending on if the value is a decimal.</p>
+<p>Examples :</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true"></a>FROM_UNIXTIME(<span class="op">-</span><span class="dv">1</span>)           <span class="co">-- `1969-12-31T23:59:59-00:00`      (negative unix_timestamp; returns timestamp before last epoch)</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true"></a>FROM_UNIXTIME(<span class="op">-</span><span class="fl">0.1</span>)         <span class="co">-- `1969-12-31T23:59:59.9-00:00`    (unix_timestamp is decimal so timestamp has fractional seconds)</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">0</span>)            <span class="co">-- `1970-01-01T00:00:00.000-00:00`</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.001</span>)        <span class="co">-- `1970-01-01T00:00:00.001-00:00`  (decimal precision to fractional second precision) </span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.01</span>)         <span class="co">-- `1970-01-01T00:00:00.01-00:00`</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.1</span>)          <span class="co">-- `1970-01-01T00:00:00.1-00:00`</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">1</span>)            <span class="co">-- `1970-01-01T00:00:01-00:00`</span></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">1577836800</span>)   <span class="co">-- `2020-01-01T00:00:00-00:00`      (unix_timestamp is Integer so no fractional seconds)</span></span></code></pre></div>
 <h1 class="unnumbered" id="references">References</h1>
 <div id="refs" class="references" role="doc-bibliography">
 <div id="ref-IonSpec">

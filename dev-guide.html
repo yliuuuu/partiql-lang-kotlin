@@ -365,11 +365,11 @@
 <p>Also note that the use of <code>case()</code> and <code>toUnit()</code> is <em>not</em> needed when the value of the <code>when</code> expression is consumed by other means. For example, the compiler will still require a branch for every derived type in this scenario because the result of the <code>when</code> becomes the function’s return value:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>   <span class="kw">fun</span> <span class="fu">transformNode</span>(<span class="va">exprNode</span>: <span class="dt">ExprNode</span>): <span class="dt">ExprNode</span> = <span class="cf">when</span>(exprNode) {</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>       <span class="kw">is</span> Literal -&gt; { <span class="co">// case() is not needed</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>           <span class="co">//Perform cloning rewrite</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>           <span class="co">//Perform cloning transform</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>           ...</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>       }</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>       <span class="kw">is</span> VariableReference -&gt; { <span class="co">// case() is not needed</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>           <span class="co">//Perform cloning rewrite</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>           <span class="co">//Perform cloning transform</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>           ...</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>       }</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>       <span class="co">//and so on for all nodes</span></span>

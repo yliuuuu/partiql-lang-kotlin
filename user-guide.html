@@ -137,7 +137,11 @@
                                                         </ul></li>
                                                         <li><a href="#working-with-structure">Working with Structure</a></li>
                                                         <li><a href="#readingwriting-files">Reading/Writing Files</a></li>
-                                                        <li><a href="#tsvcsv-data">TSV/CSV Data</a></li>
+                                                        <li><a href="#tsvcsv-data">TSV/CSV Data</a>
+                                                        <ul>
+                                                        <li><a href="#predefined-csv-data">Predefined CSV Data</a></li>
+                                                        <li><a href="#customized-csv-data">Customized CSV Data</a></li>
+                                                        </ul></li>
                                                         <li><a href="#partiql-tutorial">PartiQL Tutorial</a></li>
                                                         <li><a href="#partiql-user-guide">PartiQL User Guide</a>
                                                         <ul>
@@ -338,7 +342,7 @@ Option                                Description
 ------                                -----------
 -e, --environment &lt;File&gt;              initial global environment (optional)
 -h, --help                            prints this help
--i, --input &lt;File&gt;                    input file, requires the query option (default: stdin)
+-i, --input &lt;File&gt;                    input file, requires the query option (optional)
 -o, --output &lt;File&gt;                   output file, requires the query option (default: stdout)
 --of, --output-format &lt;OutputFormat:  output format, requires the query option (default: PARTIQL)
   (ION_TEXT|ION_BINARY|PARTIQL|PARTIQL_PRETTY)&gt;
@@ -779,7 +783,7 @@ OK!</code></pre>
 ---- 
 OK!</code></pre>
 <p>Writing TSV/CSV data can be done by specifying the optional <code>struct</code> argument to specify output format to the <code>write_file</code> function. Similar to the <code>read_file</code> function, the <code>type</code> field can be used to specify <code>tsv</code>, <code>csv</code>, or <code>ion</code> output.</p>
-<pre><code>PartiQL&gt; write_file(&#39;out.tsv&#39;, {&#39;type&#39;:&#39;tsv&#39;}, SELECT name, type FROM animals)
+<pre><code>PartiQL&gt; write_file(&#39;out.tsv&#39;, SELECT name, type FROM animals, {&#39;type&#39;:&#39;tsv&#39;},)
    | 
 ===&#39; 
 true
@@ -791,7 +795,7 @@ Kumo    dog
 Mochi   dog
 Lilikoi unicorn</code></pre>
 <p>The options <code>struct</code> can also specify a <code>header</code> Boolean field to indicate whether the output TSV/CSV should have a header row.</p>
-<pre><code>PartiQL&gt; write_file(&#39;out.tsv&#39;, {&#39;type&#39;:&#39;tsv&#39;, &#39;header&#39;:true}, SELECT name, type FROM animals)
+<pre><code>PartiQL&gt; write_file(&#39;out.tsv&#39;, SELECT name, type FROM animals, {&#39;type&#39;:&#39;tsv&#39;, &#39;header&#39;:true})
    | 
 ===&#39; 
 true
@@ -803,6 +807,19 @@ name    type
 Kumo    dog
 Mochi   dog
 Lilikoi unicorn</code></pre>
+<h2 id="predefined-csv-data">Predefined CSV Data</h2>
+<p>The <code>read_file</code> function provides options to read other predefined CSV data formats. For example, if a CSV file is exported from PostgreSQL, we can use the following command to read the file:</p>
+<pre><code>read_file(&#39;simple_postgresql.csv&#39;, {&#39;type&#39;:&#39;postgresql_csv&#39;})</code></pre>
+<p>Other available options for the argument <code>type</code> besides <code>postgresql_csv</code> are <code>excel_csv</code>, <code>mysql_csv</code>, and <code>postgresql_text</code>.</p>
+<h2 id="customized-csv-data">Customized CSV Data</h2>
+<p>The <code>read_file</code> function also provides options to read customized CSV data formats. For example, we have a data file where the whitespace is the separator as shown below:</p>
+<pre><code>title category price
+harry_potter book 7.99
+dot electronics 49.99
+echo electronics 99.99</code></pre>
+<p>We can use the following command to read the file:</p>
+<pre><code>read_file(&#39;customized.csv&#39;, {&#39;type&#39;:&#39;customized&#39;, &#39;delimiter&#39;:&#39; &#39;, &#39;header&#39;:true})</code></pre>
+<p>All the available options for customized CSV files are shown as following: 1. Ignore empty lines: <code>'ignore_empty_line':true</code> 2. Ignore spaces surrounding comma: <code>'ignore_surrounding_space':true</code> 3. Trim leading and trailing blanks: <code>'trim':true</code> 4. Set line breaker (only working with ‘\r’, ‘\n’ and ‘\r\n’): <code>'line_breaker: \n'</code> 5. Set escape sign (single character only): <code>'escape':'\'</code> 6. Set quote sign (single character only): <code>'quote':'"'</code> 7. Set delimiter sign (single character only): <code>'delimiter':','</code></p>
 <h1 id="partiql-tutorial">PartiQL Tutorial</h1>
 <p>TBD</p>
 <h1 id="partiql-user-guide">PartiQL User Guide</h1>
@@ -824,8 +841,8 @@ Lilikoi unicorn</code></pre>
 </ol>
 <h3 id="unknown-null-and-missing-propagation">Unknown (<code>null</code> and <code>missing</code>) propagation</h3>
 <p>Unless otherwise stated all functions listed below propagate <code>null</code> and <code>missing</code> argument values. Propagating <code>null</code> and <code>missing</code> values is defined as: if any function argument is either <code>null</code> or <code>missing</code> the function will return <code>null</code>, e.g.,</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true"></a>CHAR_LENGTH(<span class="kw">null</span>)    <span class="co">-- `null`</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true"></a>CHAR_LENGTH(missing) <span class="co">-- `null` (also returns `null`)</span></span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true"></a>CHAR_LENGTH(<span class="kw">null</span>)    <span class="co">-- `null`</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true"></a>CHAR_LENGTH(missing) <span class="co">-- `null` (also returns `null`)</span></span></code></pre></div>
 <h3 id="cast">CAST</h3>
 <p>Given a value and a target data type, attempt to coerce the value to the target data type.</p>
 <dl>
@@ -942,109 +959,109 @@ Lilikoi unicorn</code></pre>
 </ul></li>
 </ul>
 <p>Examples :</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true"></a><span class="co">-- Unknowns propagation </span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">null</span>    <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- null </span></span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true"></a><span class="fu">CAST</span>(missing <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- null </span></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true"></a><span class="fu">CAST</span>(missing <span class="kw">AS</span> missing) <span class="co">-- null</span></span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">null</span>    <span class="kw">AS</span> missing) <span class="co">-- null</span></span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">null</span>    <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- null (null AS any data type name result to null)</span></span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true"></a><span class="fu">CAST</span>(missing <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- null (missing AS any data type name result to null)</span></span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true"></a></span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true"></a><span class="co">-- any value that is not an unknown cannot be cast to `null` or `missing`</span></span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span> <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- error </span></span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span> <span class="kw">AS</span> missing) <span class="co">-- error</span></span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>    <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- error</span></span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>    <span class="kw">AS</span> missing) <span class="co">-- error</span></span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true"></a></span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true"></a><span class="co">-- AS boolean </span></span>
-<span id="cb43-16"><a href="#cb43-16" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>      <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true no-op</span></span>
-<span id="cb43-17"><a href="#cb43-17" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">0</span>         <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- false</span></span>
-<span id="cb43-18"><a href="#cb43-18" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>         <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true</span></span>
-<span id="cb43-19"><a href="#cb43-19" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="fl">1e0</span>`     <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (float)</span></span>
-<span id="cb43-20"><a href="#cb43-20" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`     <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (decimal)</span></span>
-<span id="cb43-21"><a href="#cb43-21" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;a&#39;</span>       <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- false</span></span>
-<span id="cb43-22"><a href="#cb43-22" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;true&#39;</span>    <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (PartiQL string &#39;true&#39;)</span></span>
-<span id="cb43-23"><a href="#cb43-23" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;true&#39;</span>`  <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (Ion symbol `&#39;true&#39;`)</span></span>
-<span id="cb43-24"><a href="#cb43-24" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;false&#39;</span>` <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- false (Ion symbol `&#39;false&#39;`)</span></span>
-<span id="cb43-25"><a href="#cb43-25" aria-hidden="true"></a></span>
-<span id="cb43-26"><a href="#cb43-26" aria-hidden="true"></a><span class="co">-- AS integer</span></span>
-<span id="cb43-27"><a href="#cb43-27" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
-<span id="cb43-28"><a href="#cb43-28" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 0</span></span>
-<span id="cb43-29"><a href="#cb43-29" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>      <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
-<span id="cb43-30"><a href="#cb43-30" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
-<span id="cb43-31"><a href="#cb43-31" aria-hidden="true"></a><span class="fu">CAST</span>(`1d3`  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1000</span></span>
-<span id="cb43-32"><a href="#cb43-32" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="fl">1.00</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
-<span id="cb43-33"><a href="#cb43-33" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;12&#39;</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 12</span></span>
-<span id="cb43-34"><a href="#cb43-34" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;aa&#39;</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- error</span></span>
-<span id="cb43-35"><a href="#cb43-35" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;22&#39;</span>` <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 22</span></span>
-<span id="cb43-36"><a href="#cb43-36" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;x&#39;</span>`  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- error</span></span>
-<span id="cb43-37"><a href="#cb43-37" aria-hidden="true"></a></span>
-<span id="cb43-38"><a href="#cb43-38" aria-hidden="true"></a><span class="co">-- AS flaot</span></span>
-<span id="cb43-39"><a href="#cb43-39" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
-<span id="cb43-40"><a href="#cb43-40" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 0e0</span></span>
-<span id="cb43-41"><a href="#cb43-41" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>      <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
-<span id="cb43-42"><a href="#cb43-42" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
-<span id="cb43-43"><a href="#cb43-43" aria-hidden="true"></a><span class="fu">CAST</span>(`1d3`  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1000e0</span></span>
-<span id="cb43-44"><a href="#cb43-44" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="fl">1.00</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
-<span id="cb43-45"><a href="#cb43-45" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;12&#39;</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 12e0</span></span>
-<span id="cb43-46"><a href="#cb43-46" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;aa&#39;</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- error</span></span>
-<span id="cb43-47"><a href="#cb43-47" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;22&#39;</span>` <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 22e0</span></span>
-<span id="cb43-48"><a href="#cb43-48" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;x&#39;</span>`  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- error</span></span>
-<span id="cb43-49"><a href="#cb43-49" aria-hidden="true"></a></span>
-<span id="cb43-50"><a href="#cb43-50" aria-hidden="true"></a><span class="co">-- AS decimal</span></span>
-<span id="cb43-51"><a href="#cb43-51" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1.</span></span>
-<span id="cb43-52"><a href="#cb43-52" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 0.</span></span>
-<span id="cb43-53"><a href="#cb43-53" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>      <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1.</span></span>
-<span id="cb43-54"><a href="#cb43-54" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1. (REPL printer serialized to 1.)</span></span>
-<span id="cb43-55"><a href="#cb43-55" aria-hidden="true"></a><span class="fu">CAST</span>(`1d3`  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1d3</span></span>
-<span id="cb43-56"><a href="#cb43-56" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="fl">1.00</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1.00</span></span>
-<span id="cb43-57"><a href="#cb43-57" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;12&#39;</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 12.</span></span>
-<span id="cb43-58"><a href="#cb43-58" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;aa&#39;</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- error</span></span>
-<span id="cb43-59"><a href="#cb43-59" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;22&#39;</span>` <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 22.</span></span>
-<span id="cb43-60"><a href="#cb43-60" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;x&#39;</span>`  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- error</span></span>
-<span id="cb43-61"><a href="#cb43-61" aria-hidden="true"></a></span>
-<span id="cb43-62"><a href="#cb43-62" aria-hidden="true"></a><span class="co">-- AS timestamp</span></span>
-<span id="cb43-63"><a href="#cb43-63" aria-hidden="true"></a><span class="fu">CAST</span>(`2001T`                      <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- 2001T</span></span>
-<span id="cb43-64"><a href="#cb43-64" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;2001-01-01T&#39;</span>                <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- 2001-01-01</span></span>
-<span id="cb43-65"><a href="#cb43-65" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;2010-01-01T00:00:00.000Z&#39;</span>` <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- 2010-01-01T00:00:00.000Z</span></span>
-<span id="cb43-66"><a href="#cb43-66" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>                         <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- error</span></span>
-<span id="cb43-67"><a href="#cb43-67" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">2001</span>                         <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- error</span></span>
-<span id="cb43-68"><a href="#cb43-68" aria-hidden="true"></a></span>
-<span id="cb43-69"><a href="#cb43-69" aria-hidden="true"></a><span class="co">-- AS symbol </span></span>
-<span id="cb43-70"><a href="#cb43-70" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;xx&#39;</span>`                     <span class="kw">AS</span> symbol) <span class="co">-- xx (`&#39;xx&#39;` is an Ion symbol)</span></span>
-<span id="cb43-71"><a href="#cb43-71" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;xx&#39;</span>                       <span class="kw">AS</span> symbol) <span class="co">-- xx (&#39;xx&#39; is a string)</span></span>
-<span id="cb43-72"><a href="#cb43-72" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">42</span>                         <span class="kw">AS</span> symbol) <span class="co">-- &#39;42&#39;</span></span>
-<span id="cb43-73"><a href="#cb43-73" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="fl">1e0</span>`                      <span class="kw">AS</span> symbol) <span class="co">-- &#39;1&#39;</span></span>
-<span id="cb43-74"><a href="#cb43-74" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`                      <span class="kw">AS</span> symbol) <span class="co">-- &#39;1&#39;</span></span>
-<span id="cb43-75"><a href="#cb43-75" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>                       <span class="kw">AS</span> symbol) <span class="co">-- &#39;true&#39;</span></span>
-<span id="cb43-76"><a href="#cb43-76" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>                      <span class="kw">AS</span> symbol) <span class="co">-- &#39;false&#39;</span></span>
-<span id="cb43-77"><a href="#cb43-77" aria-hidden="true"></a><span class="fu">CAST</span>(`2001T`                    <span class="kw">AS</span> symbol) <span class="co">-- &#39;2001T&#39;</span></span>
-<span id="cb43-78"><a href="#cb43-78" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="dv">2001</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z` <span class="kw">AS</span> symbol) <span class="co">-- &#39;2001-01-01T00:00:00.000Z`</span></span>
-<span id="cb43-79"><a href="#cb43-79" aria-hidden="true"></a></span>
-<span id="cb43-80"><a href="#cb43-80" aria-hidden="true"></a><span class="co">-- AS string </span></span>
-<span id="cb43-81"><a href="#cb43-81" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;xx&#39;</span>`                     <span class="kw">AS</span> string) <span class="co">-- &quot;xx&quot; (`&#39;xx&#39;` is an Ion symbol)</span></span>
-<span id="cb43-82"><a href="#cb43-82" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;xx&#39;</span>                       <span class="kw">AS</span> string) <span class="co">-- &quot;xx&quot; (&#39;xx&#39; is a string)</span></span>
-<span id="cb43-83"><a href="#cb43-83" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">42</span>                         <span class="kw">AS</span> string) <span class="co">-- &quot;42&quot;</span></span>
-<span id="cb43-84"><a href="#cb43-84" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="fl">1e0</span>`                      <span class="kw">AS</span> string) <span class="co">-- &quot;1.0&quot;</span></span>
-<span id="cb43-85"><a href="#cb43-85" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`                      <span class="kw">AS</span> string) <span class="co">-- &quot;1&quot;</span></span>
-<span id="cb43-86"><a href="#cb43-86" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>                       <span class="kw">AS</span> string) <span class="co">-- &quot;true&quot;</span></span>
-<span id="cb43-87"><a href="#cb43-87" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>                      <span class="kw">AS</span> string) <span class="co">-- &quot;false&quot;</span></span>
-<span id="cb43-88"><a href="#cb43-88" aria-hidden="true"></a><span class="fu">CAST</span>(`2001T`                    <span class="kw">AS</span> string) <span class="co">-- &quot;2001T&quot;</span></span>
-<span id="cb43-89"><a href="#cb43-89" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="dv">2001</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z` <span class="kw">AS</span> string) <span class="co">-- &quot;2001-01-01T00:00:00.000Z&quot;</span></span>
-<span id="cb43-90"><a href="#cb43-90" aria-hidden="true"></a></span>
-<span id="cb43-91"><a href="#cb43-91" aria-hidden="true"></a><span class="co">-- AS struct </span></span>
-<span id="cb43-92"><a href="#cb43-92" aria-hidden="true"></a><span class="fu">CAST</span>(`{ a: <span class="dv">1</span> }` <span class="kw">AS</span> struct) <span class="co">-- { a:1 }</span></span>
-<span id="cb43-93"><a href="#cb43-93" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>       <span class="kw">AS</span> struct) <span class="co">-- err</span></span>
-<span id="cb43-94"><a href="#cb43-94" aria-hidden="true"></a></span>
-<span id="cb43-95"><a href="#cb43-95" aria-hidden="true"></a><span class="co">-- AS list</span></span>
-<span id="cb43-96"><a href="#cb43-96" aria-hidden="true"></a><span class="fu">CAST</span>(`[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]`        <span class="kw">AS</span> <span class="kw">list</span>) <span class="co">-- [ 1, 2, 3 ] (REPL does not diplay the parens and commas)</span></span>
-<span id="cb43-97"><a href="#cb43-97" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="op">&lt;&lt;</span><span class="st">&#39;a&#39;</span>, { <span class="st">&#39;b&#39;</span><span class="ch">:2</span> }<span class="op">&gt;&gt;</span> <span class="kw">AS</span> <span class="kw">list</span>) <span class="co">-- [ a, { &#39;b&#39;:2 } ] (REPL does not diplay the parens and commas)</span></span>
-<span id="cb43-98"><a href="#cb43-98" aria-hidden="true"></a><span class="fu">CAST</span>({ <span class="st">&#39;b&#39;</span><span class="ch">:2</span> }          <span class="kw">AS</span> <span class="kw">list</span>) <span class="co">-- error</span></span>
-<span id="cb43-99"><a href="#cb43-99" aria-hidden="true"></a></span>
-<span id="cb43-100"><a href="#cb43-100" aria-hidden="true"></a><span class="co">-- AS bag</span></span>
-<span id="cb43-101"><a href="#cb43-101" aria-hidden="true"></a><span class="fu">CAST</span>([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]      <span class="kw">AS</span> bag) <span class="co">-- &lt;&lt;1,2,3&gt;&gt; (REPL does not display &lt;&lt; &gt;&gt; and commas)</span></span>
-<span id="cb43-102"><a href="#cb43-102" aria-hidden="true"></a><span class="fu">CAST</span>([<span class="dv">1</span>,[<span class="dv">2</span>],<span class="dv">3</span>]    <span class="kw">AS</span> bag) <span class="co">-- &lt;&lt;1,[2],3&gt;&gt; (REPL does not display &lt;&lt; &gt;&gt; and commas)</span></span>
-<span id="cb43-103"><a href="#cb43-103" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="op">&lt;&lt;</span><span class="st">&#39;a&#39;</span>, <span class="st">&#39;b&#39;</span><span class="op">&gt;&gt;</span> <span class="kw">AS</span> bag) <span class="co">-- &lt;&lt;&#39;a&#39;, &#39;b&#39;&gt;&gt; (REPL does not display &lt;&lt; &gt;&gt; and commas)</span></span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true"></a><span class="co">-- Unknowns propagation </span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">null</span>    <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- null </span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true"></a><span class="fu">CAST</span>(missing <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- null </span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true"></a><span class="fu">CAST</span>(missing <span class="kw">AS</span> missing) <span class="co">-- null</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">null</span>    <span class="kw">AS</span> missing) <span class="co">-- null</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">null</span>    <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- null (null AS any data type name result to null)</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true"></a><span class="fu">CAST</span>(missing <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- null (missing AS any data type name result to null)</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true"></a></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true"></a><span class="co">-- any value that is not an unknown cannot be cast to `null` or `missing`</span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span> <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- error </span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span> <span class="kw">AS</span> missing) <span class="co">-- error</span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>    <span class="kw">AS</span> <span class="kw">null</span>)    <span class="co">-- error</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>    <span class="kw">AS</span> missing) <span class="co">-- error</span></span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true"></a></span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true"></a><span class="co">-- AS boolean </span></span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>      <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true no-op</span></span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">0</span>         <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- false</span></span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>         <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true</span></span>
+<span id="cb46-19"><a href="#cb46-19" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="fl">1e0</span>`     <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (float)</span></span>
+<span id="cb46-20"><a href="#cb46-20" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`     <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (decimal)</span></span>
+<span id="cb46-21"><a href="#cb46-21" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;a&#39;</span>       <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- false</span></span>
+<span id="cb46-22"><a href="#cb46-22" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;true&#39;</span>    <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (PartiQL string &#39;true&#39;)</span></span>
+<span id="cb46-23"><a href="#cb46-23" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;true&#39;</span>`  <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- true (Ion symbol `&#39;true&#39;`)</span></span>
+<span id="cb46-24"><a href="#cb46-24" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;false&#39;</span>` <span class="kw">AS</span> <span class="dt">boolean</span>) <span class="co">-- false (Ion symbol `&#39;false&#39;`)</span></span>
+<span id="cb46-25"><a href="#cb46-25" aria-hidden="true"></a></span>
+<span id="cb46-26"><a href="#cb46-26" aria-hidden="true"></a><span class="co">-- AS integer</span></span>
+<span id="cb46-27"><a href="#cb46-27" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
+<span id="cb46-28"><a href="#cb46-28" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 0</span></span>
+<span id="cb46-29"><a href="#cb46-29" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>      <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
+<span id="cb46-30"><a href="#cb46-30" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
+<span id="cb46-31"><a href="#cb46-31" aria-hidden="true"></a><span class="fu">CAST</span>(`1d3`  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1000</span></span>
+<span id="cb46-32"><a href="#cb46-32" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="fl">1.00</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 1</span></span>
+<span id="cb46-33"><a href="#cb46-33" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;12&#39;</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 12</span></span>
+<span id="cb46-34"><a href="#cb46-34" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;aa&#39;</span>   <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- error</span></span>
+<span id="cb46-35"><a href="#cb46-35" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;22&#39;</span>` <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- 22</span></span>
+<span id="cb46-36"><a href="#cb46-36" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;x&#39;</span>`  <span class="kw">AS</span> <span class="dt">integer</span>) <span class="co">-- error</span></span>
+<span id="cb46-37"><a href="#cb46-37" aria-hidden="true"></a></span>
+<span id="cb46-38"><a href="#cb46-38" aria-hidden="true"></a><span class="co">-- AS flaot</span></span>
+<span id="cb46-39"><a href="#cb46-39" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
+<span id="cb46-40"><a href="#cb46-40" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 0e0</span></span>
+<span id="cb46-41"><a href="#cb46-41" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>      <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
+<span id="cb46-42"><a href="#cb46-42" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
+<span id="cb46-43"><a href="#cb46-43" aria-hidden="true"></a><span class="fu">CAST</span>(`1d3`  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1000e0</span></span>
+<span id="cb46-44"><a href="#cb46-44" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="fl">1.00</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 1e0</span></span>
+<span id="cb46-45"><a href="#cb46-45" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;12&#39;</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 12e0</span></span>
+<span id="cb46-46"><a href="#cb46-46" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;aa&#39;</span>   <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- error</span></span>
+<span id="cb46-47"><a href="#cb46-47" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;22&#39;</span>` <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- 22e0</span></span>
+<span id="cb46-48"><a href="#cb46-48" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;x&#39;</span>`  <span class="kw">AS</span> <span class="dt">float</span>) <span class="co">-- error</span></span>
+<span id="cb46-49"><a href="#cb46-49" aria-hidden="true"></a></span>
+<span id="cb46-50"><a href="#cb46-50" aria-hidden="true"></a><span class="co">-- AS decimal</span></span>
+<span id="cb46-51"><a href="#cb46-51" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1.</span></span>
+<span id="cb46-52"><a href="#cb46-52" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 0.</span></span>
+<span id="cb46-53"><a href="#cb46-53" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">1</span>      <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1.</span></span>
+<span id="cb46-54"><a href="#cb46-54" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1. (REPL printer serialized to 1.)</span></span>
+<span id="cb46-55"><a href="#cb46-55" aria-hidden="true"></a><span class="fu">CAST</span>(`1d3`  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1d3</span></span>
+<span id="cb46-56"><a href="#cb46-56" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="fl">1.00</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 1.00</span></span>
+<span id="cb46-57"><a href="#cb46-57" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;12&#39;</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 12.</span></span>
+<span id="cb46-58"><a href="#cb46-58" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;aa&#39;</span>   <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- error</span></span>
+<span id="cb46-59"><a href="#cb46-59" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;22&#39;</span>` <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- 22.</span></span>
+<span id="cb46-60"><a href="#cb46-60" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;x&#39;</span>`  <span class="kw">AS</span> <span class="dt">decimal</span>) <span class="co">-- error</span></span>
+<span id="cb46-61"><a href="#cb46-61" aria-hidden="true"></a></span>
+<span id="cb46-62"><a href="#cb46-62" aria-hidden="true"></a><span class="co">-- AS timestamp</span></span>
+<span id="cb46-63"><a href="#cb46-63" aria-hidden="true"></a><span class="fu">CAST</span>(`2001T`                      <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- 2001T</span></span>
+<span id="cb46-64"><a href="#cb46-64" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;2001-01-01T&#39;</span>                <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- 2001-01-01</span></span>
+<span id="cb46-65"><a href="#cb46-65" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;2010-01-01T00:00:00.000Z&#39;</span>` <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- 2010-01-01T00:00:00.000Z</span></span>
+<span id="cb46-66"><a href="#cb46-66" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>                         <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- error</span></span>
+<span id="cb46-67"><a href="#cb46-67" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">2001</span>                         <span class="kw">AS</span> <span class="dt">timestamp</span>) <span class="co">-- error</span></span>
+<span id="cb46-68"><a href="#cb46-68" aria-hidden="true"></a></span>
+<span id="cb46-69"><a href="#cb46-69" aria-hidden="true"></a><span class="co">-- AS symbol </span></span>
+<span id="cb46-70"><a href="#cb46-70" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;xx&#39;</span>`                     <span class="kw">AS</span> symbol) <span class="co">-- xx (`&#39;xx&#39;` is an Ion symbol)</span></span>
+<span id="cb46-71"><a href="#cb46-71" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;xx&#39;</span>                       <span class="kw">AS</span> symbol) <span class="co">-- xx (&#39;xx&#39; is a string)</span></span>
+<span id="cb46-72"><a href="#cb46-72" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">42</span>                         <span class="kw">AS</span> symbol) <span class="co">-- &#39;42&#39;</span></span>
+<span id="cb46-73"><a href="#cb46-73" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="fl">1e0</span>`                      <span class="kw">AS</span> symbol) <span class="co">-- &#39;1&#39;</span></span>
+<span id="cb46-74"><a href="#cb46-74" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`                      <span class="kw">AS</span> symbol) <span class="co">-- &#39;1&#39;</span></span>
+<span id="cb46-75"><a href="#cb46-75" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>                       <span class="kw">AS</span> symbol) <span class="co">-- &#39;true&#39;</span></span>
+<span id="cb46-76"><a href="#cb46-76" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>                      <span class="kw">AS</span> symbol) <span class="co">-- &#39;false&#39;</span></span>
+<span id="cb46-77"><a href="#cb46-77" aria-hidden="true"></a><span class="fu">CAST</span>(`2001T`                    <span class="kw">AS</span> symbol) <span class="co">-- &#39;2001T&#39;</span></span>
+<span id="cb46-78"><a href="#cb46-78" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="dv">2001</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z` <span class="kw">AS</span> symbol) <span class="co">-- &#39;2001-01-01T00:00:00.000Z`</span></span>
+<span id="cb46-79"><a href="#cb46-79" aria-hidden="true"></a></span>
+<span id="cb46-80"><a href="#cb46-80" aria-hidden="true"></a><span class="co">-- AS string </span></span>
+<span id="cb46-81"><a href="#cb46-81" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="st">&#39;xx&#39;</span>`                     <span class="kw">AS</span> string) <span class="co">-- &quot;xx&quot; (`&#39;xx&#39;` is an Ion symbol)</span></span>
+<span id="cb46-82"><a href="#cb46-82" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="st">&#39;xx&#39;</span>                       <span class="kw">AS</span> string) <span class="co">-- &quot;xx&quot; (&#39;xx&#39; is a string)</span></span>
+<span id="cb46-83"><a href="#cb46-83" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="dv">42</span>                         <span class="kw">AS</span> string) <span class="co">-- &quot;42&quot;</span></span>
+<span id="cb46-84"><a href="#cb46-84" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="fl">1e0</span>`                      <span class="kw">AS</span> string) <span class="co">-- &quot;1.0&quot;</span></span>
+<span id="cb46-85"><a href="#cb46-85" aria-hidden="true"></a><span class="fu">CAST</span>(`1d0`                      <span class="kw">AS</span> string) <span class="co">-- &quot;1&quot;</span></span>
+<span id="cb46-86"><a href="#cb46-86" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>                       <span class="kw">AS</span> string) <span class="co">-- &quot;true&quot;</span></span>
+<span id="cb46-87"><a href="#cb46-87" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">false</span>                      <span class="kw">AS</span> string) <span class="co">-- &quot;false&quot;</span></span>
+<span id="cb46-88"><a href="#cb46-88" aria-hidden="true"></a><span class="fu">CAST</span>(`2001T`                    <span class="kw">AS</span> string) <span class="co">-- &quot;2001T&quot;</span></span>
+<span id="cb46-89"><a href="#cb46-89" aria-hidden="true"></a><span class="fu">CAST</span>(`<span class="dv">2001</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z` <span class="kw">AS</span> string) <span class="co">-- &quot;2001-01-01T00:00:00.000Z&quot;</span></span>
+<span id="cb46-90"><a href="#cb46-90" aria-hidden="true"></a></span>
+<span id="cb46-91"><a href="#cb46-91" aria-hidden="true"></a><span class="co">-- AS struct </span></span>
+<span id="cb46-92"><a href="#cb46-92" aria-hidden="true"></a><span class="fu">CAST</span>(`{ a: <span class="dv">1</span> }` <span class="kw">AS</span> struct) <span class="co">-- { a:1 }</span></span>
+<span id="cb46-93"><a href="#cb46-93" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="kw">true</span>       <span class="kw">AS</span> struct) <span class="co">-- err</span></span>
+<span id="cb46-94"><a href="#cb46-94" aria-hidden="true"></a></span>
+<span id="cb46-95"><a href="#cb46-95" aria-hidden="true"></a><span class="co">-- AS list</span></span>
+<span id="cb46-96"><a href="#cb46-96" aria-hidden="true"></a><span class="fu">CAST</span>(`[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]`        <span class="kw">AS</span> <span class="kw">list</span>) <span class="co">-- [ 1, 2, 3 ] (REPL does not diplay the parens and commas)</span></span>
+<span id="cb46-97"><a href="#cb46-97" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="op">&lt;&lt;</span><span class="st">&#39;a&#39;</span>, { <span class="st">&#39;b&#39;</span><span class="ch">:2</span> }<span class="op">&gt;&gt;</span> <span class="kw">AS</span> <span class="kw">list</span>) <span class="co">-- [ a, { &#39;b&#39;:2 } ] (REPL does not diplay the parens and commas)</span></span>
+<span id="cb46-98"><a href="#cb46-98" aria-hidden="true"></a><span class="fu">CAST</span>({ <span class="st">&#39;b&#39;</span><span class="ch">:2</span> }          <span class="kw">AS</span> <span class="kw">list</span>) <span class="co">-- error</span></span>
+<span id="cb46-99"><a href="#cb46-99" aria-hidden="true"></a></span>
+<span id="cb46-100"><a href="#cb46-100" aria-hidden="true"></a><span class="co">-- AS bag</span></span>
+<span id="cb46-101"><a href="#cb46-101" aria-hidden="true"></a><span class="fu">CAST</span>([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]      <span class="kw">AS</span> bag) <span class="co">-- &lt;&lt;1,2,3&gt;&gt; (REPL does not display &lt;&lt; &gt;&gt; and commas)</span></span>
+<span id="cb46-102"><a href="#cb46-102" aria-hidden="true"></a><span class="fu">CAST</span>([<span class="dv">1</span>,[<span class="dv">2</span>],<span class="dv">3</span>]    <span class="kw">AS</span> bag) <span class="co">-- &lt;&lt;1,[2],3&gt;&gt; (REPL does not display &lt;&lt; &gt;&gt; and commas)</span></span>
+<span id="cb46-103"><a href="#cb46-103" aria-hidden="true"></a><span class="fu">CAST</span>(<span class="op">&lt;&lt;</span><span class="st">&#39;a&#39;</span>, <span class="st">&#39;b&#39;</span><span class="op">&gt;&gt;</span> <span class="kw">AS</span> bag) <span class="co">-- &lt;&lt;&#39;a&#39;, &#39;b&#39;&gt;&gt; (REPL does not display &lt;&lt; &gt;&gt; and commas)</span></span></code></pre></div>
 <h3 id="char_length-character_length">CHAR_LENGTH, CHARACTER_LENGTH</h3>
 <p>Counts the number of characters in the specified string, where ‘character’ is defined as a single unicode code point.</p>
 <p><em>Note:</em> <code>CHAR_LENGTH</code> and <code>CHARACTER_LENGTH</code> are synonyms.</p>
@@ -1068,10 +1085,10 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb44"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;&#39;</span>)          <span class="co">-- 0</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;abcdefg&#39;</span>)   <span class="co">-- 7</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;😁😞😸😸&#39;</span>) <span class="co">-- 4 (non-BMP unicode characters)</span></span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;eࠫ&#39;</span>)         <span class="co">-- 2 (because &#39;eࠫ&#39; is two codepoints: the letter &#39;e&#39; and combining character U+032B)</span></span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;&#39;</span>)          <span class="co">-- 0</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;abcdefg&#39;</span>)   <span class="co">-- 7</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;😁😞😸😸&#39;</span>) <span class="co">-- 4 (non-BMP unicode characters)</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true"></a>CHAR_LENGTH(<span class="st">&#39;eࠫ&#39;</span>)         <span class="co">-- 2 (because &#39;eࠫ&#39; is two codepoints: the letter &#39;e&#39; and combining character U+032B)</span></span></code></pre></div>
 <h3 id="coalesce">COALESCE</h3>
 <p>Evaluates the arguments in order and returns the first non unknown, i.e. first non-<code>null</code> or non-<code>missing</code>. This function does <strong>not</strong> propagate <code>null</code> and <code>missing</code>.</p>
 <dl>
@@ -1088,23 +1105,23 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb45"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="dv">1</span>)                <span class="co">-- 1</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>)             <span class="co">-- null</span></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>, <span class="kw">null</span>)       <span class="co">-- null</span></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true"></a><span class="fu">COALESCE</span>(missing)          <span class="co">-- null</span></span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true"></a><span class="fu">COALESCE</span>(missing, missing) <span class="co">-- null</span></span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="dv">1</span>, <span class="kw">null</span>)          <span class="co">-- 1</span></span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>, <span class="kw">null</span>, <span class="dv">1</span>)    <span class="co">-- 1</span></span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>, <span class="st">&#39;string&#39;</span>)   <span class="co">-- &#39;string&#39;</span></span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true"></a><span class="fu">COALESCE</span>(missing, <span class="dv">1</span>)       <span class="co">-- 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="dv">1</span>)                <span class="co">-- 1</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>)             <span class="co">-- null</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>, <span class="kw">null</span>)       <span class="co">-- null</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true"></a><span class="fu">COALESCE</span>(missing)          <span class="co">-- null</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true"></a><span class="fu">COALESCE</span>(missing, missing) <span class="co">-- null</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="dv">1</span>, <span class="kw">null</span>)          <span class="co">-- 1</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>, <span class="kw">null</span>, <span class="dv">1</span>)    <span class="co">-- 1</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true"></a><span class="fu">COALESCE</span>(<span class="kw">null</span>, <span class="st">&#39;string&#39;</span>)   <span class="co">-- &#39;string&#39;</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true"></a><span class="fu">COALESCE</span>(missing, <span class="dv">1</span>)       <span class="co">-- 1</span></span></code></pre></div>
 <h3 id="date_add">DATE_ADD</h3>
-<p>Given a data part, a quantity and a timestamp, returns an updated timestamp by altering date part by quantity</p>
+<p>Given a data part, a quantity and a timestamp, returns an updated timestamp by altering datetime part by quantity</p>
 <dl>
 <dt>Signature</dt>
-<dd><code>DATE_ADD: DatePart Integer Timestamp -&gt; Timestamp</code>
+<dd><code>DATE_ADD: DateTimePart Integer Timestamp -&gt; Timestamp</code>
 </dd>
 </dl>
-<p>Where <code>DatePart</code> is one of</p>
+<p>Where <code>DateTimePart</code> is one of</p>
 <ul>
 <li><code>year</code></li>
 <li><code>month</code></li>
@@ -1127,75 +1144,79 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb46"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true"></a>DATE_ADD(<span class="dt">year</span>, <span class="dv">5</span>, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)                <span class="co">-- 2015-01-01 (equivalent to 2015-01-01T)</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true"></a>DATE_ADD(<span class="dt">month</span>, <span class="dv">1</span>, `2010T`)                     <span class="co">-- 2010-02T (result will add precision as necessary)</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true"></a>DATE_ADD(<span class="dt">month</span>, <span class="dv">13</span>, `2010T`)                    <span class="co">-- 2011-02T</span></span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true"></a>DATE_ADD(<span class="dt">day</span>, <span class="op">-</span><span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>10T`)                <span class="co">-- 2017-01-09 (equivalent to 2017-01-09T)</span></span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true"></a>DATE_ADD(<span class="kw">hour</span>, <span class="dv">1</span>, `2017T`)                      <span class="co">-- 2017-01-01T01:00-00:00</span></span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true"></a>DATE_ADD(<span class="kw">hour</span>, <span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04Z</span>`)          <span class="co">-- 2017-01-02T04:04Z</span></span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true"></a>DATE_ADD(<span class="kw">minute</span>, <span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="fl">.006</span>Z`) <span class="co">-- 2017-01-02T03:05:05.006Z</span></span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true"></a>DATE_ADD(<span class="dt">second</span>, <span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="fl">.006</span>Z`) <span class="co">-- 2017-01-02T03:04:06.006Z</span></span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true"></a>DATE_ADD(<span class="dt">year</span>, <span class="dv">5</span>, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)                <span class="co">-- 2015-01-01 (equivalent to 2015-01-01T)</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true"></a>DATE_ADD(<span class="dt">month</span>, <span class="dv">1</span>, `2010T`)                     <span class="co">-- 2010-02T (result will add precision as necessary)</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true"></a>DATE_ADD(<span class="dt">month</span>, <span class="dv">13</span>, `2010T`)                    <span class="co">-- 2011-02T</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true"></a>DATE_ADD(<span class="dt">day</span>, <span class="op">-</span><span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>10T`)                <span class="co">-- 2017-01-09 (equivalent to 2017-01-09T)</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true"></a>DATE_ADD(<span class="kw">hour</span>, <span class="dv">1</span>, `2017T`)                      <span class="co">-- 2017-01-01T01:00-00:00</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true"></a>DATE_ADD(<span class="kw">hour</span>, <span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04Z</span>`)          <span class="co">-- 2017-01-02T04:04Z</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true"></a>DATE_ADD(<span class="kw">minute</span>, <span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="fl">.006</span>Z`) <span class="co">-- 2017-01-02T03:05:05.006Z</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true"></a>DATE_ADD(<span class="dt">second</span>, <span class="dv">1</span>, `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="fl">.006</span>Z`) <span class="co">-- 2017-01-02T03:04:06.006Z</span></span></code></pre></div>
 <h3 id="date_diff">DATE_DIFF</h3>
-<p>Given a date part and two valid timestamps returns the difference in date parts.</p>
+<p>Given a datetime part and two valid timestamps returns the difference in datetime parts.</p>
 <dl>
 <dt>Signature</dt>
-<dd><code>DATE_DIFF: DatePart Timestamp Timestamp -&gt; Integer</code>
+<dd><code>DATE_DIFF: DateTimePart Timestamp Timestamp -&gt; Integer</code>
 </dd>
 </dl>
-<p>See <a href="#date_add">DATE_ADD</a> for the definition of <code>DatePart</code></p>
+<p>See <a href="#date_add">DATE_ADD</a> for the definition of <code>DateTimePart</code></p>
 <dl>
 <dt>Header</dt>
 <dd><code>DATE_DIFF(dp, t1, t2)</code>
 </dd>
 <dt>Purpose</dt>
-<dd>Given a date part <code>dp</code> and two timestamps <code>t1</code> and <code>t2</code> returns the difference in value for <code>dp</code> part of <code>t1</code> with <code>t2</code>. The return value is a negative integer when the <code>dp</code> value of <code>t1</code> is greater than the <code>dp</code> value of <code>t2</code>, and, a positive integer when the <code>dp</code> value of <code>t1</code> is less than the <code>dp</code> value of <code>t2</code>.
+<dd>Given a datetime part <code>dp</code> and two timestamps <code>t1</code> and <code>t2</code> returns the difference in value for <code>dp</code> part of <code>t1</code> with <code>t2</code>. The return value is a negative integer when the <code>dp</code> value of <code>t1</code> is greater than the <code>dp</code> value of <code>t2</code>, and, a positive integer when the <code>dp</code> value of <code>t1</code> is less than the <code>dp</code> value of <code>t2</code>.
 </dd>
 <dt>Examples</dt>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb47"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true"></a>DATE_DIFF(<span class="dt">year</span>, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`, `<span class="dv">2011</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)            <span class="co">-- 1</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true"></a>DATE_DIFF(<span class="dt">year</span>, `2010T`, `<span class="dv">2010</span><span class="op">-</span>05T`)                     <span class="co">-- 4 (2010T is equivalent to 2010-01-01T00:00:00.000Z)</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true"></a>DATE_DIFF(<span class="dt">month</span>, `2010T`, `2011T`)                       <span class="co">-- 12</span></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true"></a>DATE_DIFF(<span class="dt">month</span>, `2011T`, `2010T`)                       <span class="co">-- -12</span></span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true"></a>DATE_DIFF(<span class="dt">day</span>, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T23<span class="ch">:00T</span>`, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T01<span class="ch">:00T</span>`) <span class="co">-- 0 (need to be at least 24h apart to be 1 day apart)</span></span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true"></a>DATE_DIFF(<span class="dt">year</span>, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`, `<span class="dv">2011</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)            <span class="co">-- 1</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true"></a>DATE_DIFF(<span class="dt">year</span>, `2010T`, `<span class="dv">2010</span><span class="op">-</span>05T`)                     <span class="co">-- 4 (2010T is equivalent to 2010-01-01T00:00:00.000Z)</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true"></a>DATE_DIFF(<span class="dt">month</span>, `2010T`, `2011T`)                       <span class="co">-- 12</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true"></a>DATE_DIFF(<span class="dt">month</span>, `2011T`, `2010T`)                       <span class="co">-- -12</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true"></a>DATE_DIFF(<span class="dt">day</span>, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T23<span class="ch">:00T</span>`, `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T01<span class="ch">:00T</span>`) <span class="co">-- 0 (need to be at least 24h apart to be 1 day apart)</span></span></code></pre></div>
 <h3 id="exists">EXISTS</h3>
-<p>Given an PartiQL value returns <code>true</code> if and only if the value is a non-empty sequence, returns <code>false</code> otherwise.</p>
+<p>Given a PartiQL value returns <code>true</code> if and only if the value is a non-empty container(bag, sexp, list or struct), returns <code>false</code> otherwise.</p>
 <dl>
 <dt>Signature</dt>
-<dd><code>EXISTS: Any -&gt; Boolean</code>
+<dd><code>EXISTS: Container -&gt; Boolean</code>
 </dd>
 <dt>Header</dt>
 <dd><code>EXISTS(val)</code>
 </dd>
 <dt>Purpose</dt>
-<dd>Given an PartiQL value, <code>val</code>, returns <code>true</code> if and only if <code>val</code> is a non-empty sequence, returns <code>false</code> otherwise. This function does <strong>not</strong> propagate <code>null</code> and <code>missing</code>.
+<dd>Given a PartiQL value <code>val</code>, if <code>val</code> is<br />
+1. a container with size &gt; 0, <code>EXISTS(val)</code> returns <code>true</code>; 2. a container with size = 0, <code>EXISTS(val)</code> returns <code>false</code>; 3. not a container, <code>EXISTS(val)</code> throws an error.
 </dd>
+</dl>
+<p>Note: 1. This function does <strong>not</strong> propagate <code>null</code> and <code>missing</code>.</p>
+<dl>
 <dt>Examples</dt>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb48"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true"></a><span class="kw">EXISTS</span>(`[]`)        <span class="co">-- false (empty list)</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true"></a><span class="kw">EXISTS</span>(`[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]`) <span class="co">-- true (non-empty list)</span></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true"></a><span class="kw">EXISTS</span>(`[missing]`) <span class="co">-- true (non-empty list)</span></span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true"></a><span class="kw">EXISTS</span>(`{}`)        <span class="co">-- false (empty struct)</span></span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true"></a><span class="kw">EXISTS</span>(`{ a: <span class="dv">1</span> }`)  <span class="co">-- true (non-empty struct)</span></span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true"></a><span class="kw">EXISTS</span>(`()`)        <span class="co">-- false (empty s-expression)</span></span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true"></a><span class="kw">EXISTS</span>(`(<span class="op">+</span> <span class="dv">1</span> <span class="dv">2</span>)`)   <span class="co">-- true (non-empty s-expression)</span></span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true"></a><span class="kw">EXISTS</span>(`<span class="op">&lt;&lt;&gt;&gt;</span>`)      <span class="co">-- false (empty bag)</span></span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true"></a><span class="kw">EXISTS</span>(`<span class="op">&lt;&lt;</span><span class="kw">null</span><span class="op">&gt;&gt;</span>`)  <span class="co">-- true (non-empty bag)</span></span>
-<span id="cb48-10"><a href="#cb48-10" aria-hidden="true"></a><span class="kw">EXISTS</span>(<span class="dv">1</span>)           <span class="co">-- false</span></span>
-<span id="cb48-11"><a href="#cb48-11" aria-hidden="true"></a><span class="kw">EXISTS</span>(`2017T`)     <span class="co">-- false</span></span>
-<span id="cb48-12"><a href="#cb48-12" aria-hidden="true"></a><span class="kw">EXISTS</span>(<span class="kw">null</span>)        <span class="co">-- false</span></span>
-<span id="cb48-13"><a href="#cb48-13" aria-hidden="true"></a><span class="kw">EXISTS</span>(missing)     <span class="co">-- false</span></span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true"></a><span class="kw">EXISTS</span>(`[]`)        <span class="co">-- false (empty list)</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true"></a><span class="kw">EXISTS</span>(`[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]`) <span class="co">-- true (non-empty list)</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true"></a><span class="kw">EXISTS</span>(`[missing]`) <span class="co">-- true (non-empty list)</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true"></a><span class="kw">EXISTS</span>(`{}`)        <span class="co">-- false (empty struct)</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true"></a><span class="kw">EXISTS</span>(`{ a: <span class="dv">1</span> }`)  <span class="co">-- true (non-empty struct)</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true"></a><span class="kw">EXISTS</span>(`()`)        <span class="co">-- false (empty s-expression)</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true"></a><span class="kw">EXISTS</span>(`(<span class="op">+</span> <span class="dv">1</span> <span class="dv">2</span>)`)   <span class="co">-- true (non-empty s-expression)</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true"></a><span class="kw">EXISTS</span>(`<span class="op">&lt;&lt;&gt;&gt;</span>`)      <span class="co">-- false (empty bag)</span></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true"></a><span class="kw">EXISTS</span>(`<span class="op">&lt;&lt;</span><span class="kw">null</span><span class="op">&gt;&gt;</span>`)  <span class="co">-- true (non-empty bag)</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true"></a><span class="kw">EXISTS</span>(<span class="dv">1</span>)           <span class="co">-- error</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true"></a><span class="kw">EXISTS</span>(`2017T`)     <span class="co">-- error</span></span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true"></a><span class="kw">EXISTS</span>(<span class="kw">null</span>)        <span class="co">-- error</span></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true"></a><span class="kw">EXISTS</span>(missing)     <span class="co">-- error</span></span></code></pre></div>
 <h3 id="extract">EXTRACT</h3>
-<p>Given a date part and a datetime type returns then datetime’s date part value.</p>
+<p>Given a datetime part and a datetime type returns then datetime’s datetime part value.</p>
 <dl>
 <dt>Signature</dt>
-<dd><code>EXTRACT: ExtractDatePart DateTime -&gt; Integer</code>
+<dd><code>EXTRACT: ExtractDateTimePart DateTime -&gt; Integer</code>
 </dd>
 </dl>
-<p>where <code>ExtractDatePart</code> is one of</p>
+<p>where <code>ExtractDateTimePart</code> is one of</p>
 <ul>
 <li><code>year</code></li>
 <li><code>month</code></li>
@@ -1212,37 +1233,37 @@ Lilikoi unicorn</code></pre>
 <li><code>TIME</code></li>
 <li><code>TIMESTAMP</code></li>
 </ul>
-<p><em>Note</em> that <code>ExtractDatePart</code> <strong>differs</strong> from <code>DatePart</code> in <a href="#date_add">DATE_ADD</a>.</p>
+<p><em>Note</em> that <code>ExtractDateTimePart</code> <strong>differs</strong> from <code>DateTimePart</code> in <a href="#date_add">DATE_ADD</a>.</p>
 <dl>
 <dt>Header</dt>
 <dd><code>EXTRACT(edp FROM t)</code>
 </dd>
 <dt>Purpose</dt>
-<dd>Given a date part, <code>edp</code>, and a datetime type <code>t</code> return <code>t</code>’s value for <code>edp</code>. This function allows for <code>t</code> to be unknown (<code>null</code> or <code>missing</code>) but <strong>not</strong> <code>edp</code>. If <code>t</code> is unknown the function returns <code>null</code>.
+<dd>Given a datetime part, <code>edp</code>, and a datetime type <code>t</code> return <code>t</code>’s value for <code>edp</code>. This function allows for <code>t</code> to be unknown (<code>null</code> or <code>missing</code>) but <strong>not</strong> <code>edp</code>. If <code>t</code> is unknown the function returns <code>null</code>.
 </dd>
 <dt>Examples</dt>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb49"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">YEAR</span> <span class="kw">FROM</span> `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)                           <span class="co">-- 2010</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">MONTH</span> <span class="kw">FROM</span> `2010T`)                                <span class="co">-- 1 (equivalent to 2010-01-01T00:00:00.000Z)</span></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">MONTH</span> <span class="kw">FROM</span> `<span class="dv">2010</span><span class="op">-</span>10T`)                             <span class="co">-- 10</span></span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">HOUR</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)             <span class="co">-- 3</span></span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">MINUTE</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)           <span class="co">-- 4</span></span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_HOUR</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)    <span class="co">-- 7</span></span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_MINUTE</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)  <span class="co">-- 8</span></span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">YEAR</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                       <span class="co">-- 2010</span></span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">MONTH</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                      <span class="co">-- 1</span></span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">DAY</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                        <span class="co">-- 1</span></span>
-<span id="cb49-11"><a href="#cb49-11" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">HOUR</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                       <span class="co">-- 0</span></span>
-<span id="cb49-12"><a href="#cb49-12" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">MINUTE</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                     <span class="co">-- 0</span></span>
-<span id="cb49-13"><a href="#cb49-13" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">SECOND</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                     <span class="co">-- 0</span></span>
-<span id="cb49-14"><a href="#cb49-14" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">HOUR</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="st">&#39;23:12:59&#39;</span>)                         <span class="co">-- 23</span></span>
-<span id="cb49-15"><a href="#cb49-15" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">MINUTE</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="st">&#39;23:12:59&#39;</span>)                       <span class="co">-- 12</span></span>
-<span id="cb49-16"><a href="#cb49-16" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">SECOND</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="st">&#39;23:12:59&#39;</span>)                       <span class="co">-- 59</span></span>
-<span id="cb49-17"><a href="#cb49-17" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">SECOND</span> <span class="kw">FROM</span> <span class="dt">TIME</span> (<span class="dv">2</span>) <span class="st">&#39;23:12:59.128&#39;</span>)               <span class="co">-- 59.13</span></span>
-<span id="cb49-18"><a href="#cb49-18" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_HOUR</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="kw">WITH</span> <span class="dt">TIME</span> <span class="dt">ZONE</span> <span class="st">&#39;23:12:59-08:30&#39;</span>)    <span class="co">-- -8</span></span>
-<span id="cb49-19"><a href="#cb49-19" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_MINUTE</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="kw">WITH</span> <span class="dt">TIME</span> <span class="dt">ZONE</span> <span class="st">&#39;23:12:59-08:30&#39;</span>)  <span class="co">-- -30</span></span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">YEAR</span> <span class="kw">FROM</span> `<span class="dv">2010</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)                           <span class="co">-- 2010</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">MONTH</span> <span class="kw">FROM</span> `2010T`)                                <span class="co">-- 1 (equivalent to 2010-01-01T00:00:00.000Z)</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">MONTH</span> <span class="kw">FROM</span> `<span class="dv">2010</span><span class="op">-</span>10T`)                             <span class="co">-- 10</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">HOUR</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)             <span class="co">-- 3</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">MINUTE</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)           <span class="co">-- 4</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_HOUR</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)    <span class="co">-- 7</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_MINUTE</span> <span class="kw">FROM</span> `<span class="dv">2017</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>02T03<span class="ch">:04:05</span><span class="op">+</span><span class="dv">07</span><span class="ch">:08</span>`)  <span class="co">-- 8</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">YEAR</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                       <span class="co">-- 2010</span></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">MONTH</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                      <span class="co">-- 1</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">DAY</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                        <span class="co">-- 1</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">HOUR</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                       <span class="co">-- 0</span></span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">MINUTE</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                     <span class="co">-- 0</span></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">SECOND</span> <span class="kw">FROM</span> <span class="dt">DATE</span> <span class="st">&#39;2010-01-01&#39;</span>)                     <span class="co">-- 0</span></span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">HOUR</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="st">&#39;23:12:59&#39;</span>)                         <span class="co">-- 23</span></span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">MINUTE</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="st">&#39;23:12:59&#39;</span>)                       <span class="co">-- 12</span></span>
+<span id="cb52-16"><a href="#cb52-16" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">SECOND</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="st">&#39;23:12:59&#39;</span>)                       <span class="co">-- 59</span></span>
+<span id="cb52-17"><a href="#cb52-17" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="dt">SECOND</span> <span class="kw">FROM</span> <span class="dt">TIME</span> (<span class="dv">2</span>) <span class="st">&#39;23:12:59.128&#39;</span>)               <span class="co">-- 59.13</span></span>
+<span id="cb52-18"><a href="#cb52-18" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_HOUR</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="kw">WITH</span> <span class="dt">TIME</span> <span class="dt">ZONE</span> <span class="st">&#39;23:12:59-08:30&#39;</span>)    <span class="co">-- -8</span></span>
+<span id="cb52-19"><a href="#cb52-19" aria-hidden="true"></a><span class="fu">EXTRACT</span>(<span class="kw">TIMEZONE_MINUTE</span> <span class="kw">FROM</span> <span class="dt">TIME</span> <span class="kw">WITH</span> <span class="dt">TIME</span> <span class="dt">ZONE</span> <span class="st">&#39;23:12:59-08:30&#39;</span>)  <span class="co">-- -30</span></span></code></pre></div>
 <p><em>Note</em> that <code>timezone_hour</code> and <code>timezone_minute</code> are <strong>not supported</strong> for <code>DATE</code> and <code>TIME</code> (without time zone) type.</p>
 <h3 id="lower">LOWER</h3>
 <p>Given a string convert all upper case characters to lower case characters.</p>
@@ -1260,7 +1281,7 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb50"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true"></a><span class="fu">LOWER</span>(<span class="st">&#39;AbCdEfG!@#$&#39;</span>) <span class="co">-- &#39;abcdefg!@#$&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true"></a><span class="fu">LOWER</span>(<span class="st">&#39;AbCdEfG!@#$&#39;</span>) <span class="co">-- &#39;abcdefg!@#$&#39;</span></span></code></pre></div>
 <h3 id="make_date">MAKE_DATE</h3>
 <p>Given the integer values for the year, month and day returns the associated date.</p>
 <dl>
@@ -1278,15 +1299,15 @@ Lilikoi unicorn</code></pre>
 </dd>
 </dl>
 <p>Examples :</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">02</span>, <span class="dv">28</span>)                  <span class="co">-- 2021-02-28</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2020</span>, <span class="dv">02</span>, <span class="dv">29</span>)                  <span class="co">-- 2020-02-29</span></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">12</span>, <span class="dv">31</span>)                  <span class="co">-- 2021-12-31</span></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true"></a>MAKE_DATE(<span class="kw">null</span>, <span class="dv">02</span>, <span class="dv">28</span>)                  <span class="co">-- null</span></span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="kw">null</span>, <span class="dv">28</span>)                <span class="co">-- null</span></span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">02</span>, <span class="kw">null</span>)                <span class="co">-- null</span></span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true"></a>MAKE_DATE(missing, <span class="dv">02</span>, <span class="dv">28</span>)               <span class="co">-- null</span></span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, missing, <span class="dv">28</span>)             <span class="co">-- null</span></span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">02</span>, missing)             <span class="co">-- null</span></span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">02</span>, <span class="dv">28</span>)                  <span class="co">-- 2021-02-28</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2020</span>, <span class="dv">02</span>, <span class="dv">29</span>)                  <span class="co">-- 2020-02-29</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">12</span>, <span class="dv">31</span>)                  <span class="co">-- 2021-12-31</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true"></a>MAKE_DATE(<span class="kw">null</span>, <span class="dv">02</span>, <span class="dv">28</span>)                  <span class="co">-- null</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="kw">null</span>, <span class="dv">28</span>)                <span class="co">-- null</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">02</span>, <span class="kw">null</span>)                <span class="co">-- null</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true"></a>MAKE_DATE(missing, <span class="dv">02</span>, <span class="dv">28</span>)               <span class="co">-- null</span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, missing, <span class="dv">28</span>)             <span class="co">-- null</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true"></a>MAKE_DATE(<span class="dv">2021</span>, <span class="dv">02</span>, missing)             <span class="co">-- null</span></span></code></pre></div>
 <h3 id="make_time">MAKE_TIME</h3>
 <p>Given the values for the hour (int), minute (int), second (BigDecimal) and optionally for timezone minutes (int) returns the associated time.</p>
 <dl>
@@ -1304,17 +1325,17 @@ Lilikoi unicorn</code></pre>
 </dd>
 </dl>
 <p>Examples :</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, <span class="dv">59</span>, <span class="fl">59.</span>)                   <span class="co">-- 23:59:59</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, <span class="dv">59</span>, <span class="fl">59.12345</span>, <span class="dv">330</span>)         <span class="co">-- 23:59:59.12345+05:30</span></span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, <span class="dv">59</span>, <span class="fl">59.12345</span>, <span class="op">-</span><span class="dv">330</span>)        <span class="co">-- 23:59:59.12345-05:30</span></span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true"></a>MAKE_TIME(<span class="kw">null</span>, <span class="dv">02</span>, <span class="fl">28.</span>)                 <span class="co">-- null</span></span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true"></a>MAKE_TIME(<span class="dv">12</span>, <span class="kw">null</span>, <span class="fl">28.</span>)                 <span class="co">-- null</span></span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, <span class="kw">null</span>)                  <span class="co">-- null</span></span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true"></a>MAKE_TIME(missing, <span class="dv">02</span>, <span class="fl">28.</span>)              <span class="co">-- null</span></span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, missing, <span class="fl">59.</span>)              <span class="co">-- null</span></span>
-<span id="cb52-9"><a href="#cb52-9" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, missing)               <span class="co">-- null</span></span>
-<span id="cb52-10"><a href="#cb52-10" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, <span class="fl">28.</span>, <span class="kw">null</span>)             <span class="co">-- null</span></span>
-<span id="cb52-11"><a href="#cb52-11" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, <span class="fl">28.</span>, missing)          <span class="co">-- null</span></span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, <span class="dv">59</span>, <span class="fl">59.</span>)                   <span class="co">-- 23:59:59</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, <span class="dv">59</span>, <span class="fl">59.12345</span>, <span class="dv">330</span>)         <span class="co">-- 23:59:59.12345+05:30</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, <span class="dv">59</span>, <span class="fl">59.12345</span>, <span class="op">-</span><span class="dv">330</span>)        <span class="co">-- 23:59:59.12345-05:30</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true"></a>MAKE_TIME(<span class="kw">null</span>, <span class="dv">02</span>, <span class="fl">28.</span>)                 <span class="co">-- null</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true"></a>MAKE_TIME(<span class="dv">12</span>, <span class="kw">null</span>, <span class="fl">28.</span>)                 <span class="co">-- null</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, <span class="kw">null</span>)                  <span class="co">-- null</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true"></a>MAKE_TIME(missing, <span class="dv">02</span>, <span class="fl">28.</span>)              <span class="co">-- null</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true"></a>MAKE_TIME(<span class="dv">23</span>, missing, <span class="fl">59.</span>)              <span class="co">-- null</span></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, missing)               <span class="co">-- null</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, <span class="fl">28.</span>, <span class="kw">null</span>)             <span class="co">-- null</span></span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true"></a>MAKE_TIME(<span class="dv">21</span>, <span class="dv">02</span>, <span class="fl">28.</span>, missing)          <span class="co">-- null</span></span></code></pre></div>
 <h3 id="size">SIZE</h3>
 <p>Given any container data type (i.e., list, structure or bag) return the number of elements in the container.</p>
 <dl>
@@ -1331,13 +1352,13 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb53"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true"></a><span class="kw">SIZE</span>(`[]`)                   <span class="co">-- 0</span></span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true"></a><span class="kw">SIZE</span>(`[<span class="kw">null</span>]`)               <span class="co">-- 1</span></span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true"></a><span class="kw">SIZE</span>(`[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]`)              <span class="co">-- 3</span></span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true"></a><span class="kw">SIZE</span>(<span class="op">&lt;&lt;</span><span class="st">&#39;foo&#39;</span>, <span class="st">&#39;bar&#39;</span><span class="op">&gt;&gt;</span>)       <span class="co">-- 2</span></span>
-<span id="cb53-5"><a href="#cb53-5" aria-hidden="true"></a><span class="kw">SIZE</span>(`{foo: bar}`)           <span class="co">-- 1 (number of key-value pairs)</span></span>
-<span id="cb53-6"><a href="#cb53-6" aria-hidden="true"></a><span class="kw">SIZE</span>(`[{foo: <span class="dv">1</span>}, {foo: <span class="dv">2</span>}]`) <span class="co">-- 2</span></span>
-<span id="cb53-7"><a href="#cb53-7" aria-hidden="true"></a><span class="kw">SIZE</span>(<span class="dv">12</span>)                     <span class="co">-- error</span></span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true"></a><span class="kw">SIZE</span>(`[]`)                   <span class="co">-- 0</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true"></a><span class="kw">SIZE</span>(`[<span class="kw">null</span>]`)               <span class="co">-- 1</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true"></a><span class="kw">SIZE</span>(`[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]`)              <span class="co">-- 3</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true"></a><span class="kw">SIZE</span>(<span class="op">&lt;&lt;</span><span class="st">&#39;foo&#39;</span>, <span class="st">&#39;bar&#39;</span><span class="op">&gt;&gt;</span>)       <span class="co">-- 2</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true"></a><span class="kw">SIZE</span>(`{foo: bar}`)           <span class="co">-- 1 (number of key-value pairs)</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true"></a><span class="kw">SIZE</span>(`[{foo: <span class="dv">1</span>}, {foo: <span class="dv">2</span>}]`) <span class="co">-- 2</span></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true"></a><span class="kw">SIZE</span>(<span class="dv">12</span>)                     <span class="co">-- error</span></span></code></pre></div>
 <h3 id="nullif">NULLIF</h3>
 <p>Given two expressions return <code>null</code> if the two expressions evaluate to the same value, else, returns the result of evaluating the first expression</p>
 <dl>
@@ -1357,16 +1378,16 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb54"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="dv">1</span>)             <span class="co">-- null</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="dv">2</span>)             <span class="co">-- 1</span></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="fl">1.0</span>, <span class="dv">1</span>)           <span class="co">-- null</span></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="st">&#39;1&#39;</span>)           <span class="co">-- 1</span></span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true"></a><span class="fu">NULLIF</span>([<span class="dv">1</span>], [<span class="dv">1</span>])         <span class="co">-- null</span></span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="kw">NULL</span>)          <span class="co">-- 1</span></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="kw">NULL</span>, <span class="dv">1</span>)          <span class="co">-- null</span></span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="kw">null</span>, <span class="kw">null</span>)       <span class="co">-- null</span></span>
-<span id="cb54-9"><a href="#cb54-9" aria-hidden="true"></a><span class="fu">NULLIF</span>(missing, <span class="kw">null</span>)    <span class="co">-- null</span></span>
-<span id="cb54-10"><a href="#cb54-10" aria-hidden="true"></a><span class="fu">NULLIF</span>(missing, missing) <span class="co">-- null</span></span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="dv">1</span>)             <span class="co">-- null</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="dv">2</span>)             <span class="co">-- 1</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="fl">1.0</span>, <span class="dv">1</span>)           <span class="co">-- null</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="st">&#39;1&#39;</span>)           <span class="co">-- 1</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true"></a><span class="fu">NULLIF</span>([<span class="dv">1</span>], [<span class="dv">1</span>])         <span class="co">-- null</span></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="dv">1</span>, <span class="kw">NULL</span>)          <span class="co">-- 1</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="kw">NULL</span>, <span class="dv">1</span>)          <span class="co">-- null</span></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true"></a><span class="fu">NULLIF</span>(<span class="kw">null</span>, <span class="kw">null</span>)       <span class="co">-- null</span></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true"></a><span class="fu">NULLIF</span>(missing, <span class="kw">null</span>)    <span class="co">-- null</span></span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true"></a><span class="fu">NULLIF</span>(missing, missing) <span class="co">-- null</span></span></code></pre></div>
 <h3 id="substring">SUBSTRING</h3>
 <p>Given a string, a start index and optionally a length, returns the substring from the start index up to the end of the string, or, up to the length provided.</p>
 <dl>
@@ -1392,18 +1413,18 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb55"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">0</span>)      <span class="co">-- &quot;123456789&quot;</span></span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">1</span>)      <span class="co">-- &quot;123456789&quot;</span></span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">2</span>)      <span class="co">-- &quot;23456789&quot;</span></span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="op">-</span><span class="dv">4</span>)     <span class="co">-- &quot;123456789&quot;</span></span>
-<span id="cb55-5"><a href="#cb55-5" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">0</span>, <span class="dv">999</span>) <span class="co">-- &quot;123456789&quot; </span></span>
-<span id="cb55-6"><a href="#cb55-6" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">0</span>, <span class="dv">2</span>)   <span class="co">-- &quot;1&quot;</span></span>
-<span id="cb55-7"><a href="#cb55-7" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">1</span>, <span class="dv">999</span>) <span class="co">-- &quot;123456789&quot;</span></span>
-<span id="cb55-8"><a href="#cb55-8" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">1</span>, <span class="dv">2</span>)   <span class="co">-- &quot;12&quot;</span></span>
-<span id="cb55-9"><a href="#cb55-9" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)           <span class="co">-- &quot;&quot;</span></span>
-<span id="cb55-10"><a href="#cb55-10" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)           <span class="co">-- &quot;&quot;</span></span>
-<span id="cb55-11"><a href="#cb55-11" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1&quot;</span>, <span class="op">-</span><span class="dv">4</span>, <span class="dv">0</span>)          <span class="co">-- &quot;&quot;</span></span>
-<span id="cb55-12"><a href="#cb55-12" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1234&quot;</span>, <span class="dv">10</span>, <span class="dv">10</span>)      <span class="co">-- &quot;&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">0</span>)      <span class="co">-- &quot;123456789&quot;</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">1</span>)      <span class="co">-- &quot;123456789&quot;</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">2</span>)      <span class="co">-- &quot;23456789&quot;</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="op">-</span><span class="dv">4</span>)     <span class="co">-- &quot;123456789&quot;</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">0</span>, <span class="dv">999</span>) <span class="co">-- &quot;123456789&quot; </span></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">0</span>, <span class="dv">2</span>)   <span class="co">-- &quot;1&quot;</span></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">1</span>, <span class="dv">999</span>) <span class="co">-- &quot;123456789&quot;</span></span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;123456789&quot;</span>, <span class="dv">1</span>, <span class="dv">2</span>)   <span class="co">-- &quot;12&quot;</span></span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)           <span class="co">-- &quot;&quot;</span></span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)           <span class="co">-- &quot;&quot;</span></span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1&quot;</span>, <span class="op">-</span><span class="dv">4</span>, <span class="dv">0</span>)          <span class="co">-- &quot;&quot;</span></span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true"></a>SUBSTRING(<span class="ot">&quot;1234&quot;</span>, <span class="dv">10</span>, <span class="dv">10</span>)      <span class="co">-- &quot;&quot;</span></span></code></pre></div>
 <h3 id="to_string">TO_STRING</h3>
 <p>Given a timestamp and a format pattern return a string representation of the timestamp in the given format.</p>
 <dl>
@@ -1594,15 +1615,15 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb56"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`,  <span class="st">&#39;MMMM d, y&#39;</span>)                    <span class="co">-- &quot;July 20, 1969&quot;</span></span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;MMM d, yyyy&#39;</span>)                   <span class="co">-- &quot;Jul 20, 1969&quot;</span></span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;M-d-yy&#39;</span>)                        <span class="co">-- &quot;7-20-69&quot;</span></span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;MM-d-y&#39;</span>)                        <span class="co">-- &quot;07-20-1969&quot;</span></span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;MMMM d, y h:m a&#39;</span>)               <span class="co">-- &quot;July 20, 1969 8:18 PM&quot;</span></span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssX&#39;</span>)           <span class="co">-- &quot;1969-07-20T20:18:00Z&quot;</span></span>
-<span id="cb56-7"><a href="#cb56-7" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18</span><span class="op">+</span><span class="dv">08</span><span class="ch">:00Z</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssX&#39;</span>)     <span class="co">-- &quot;1969-07-20T20:18:00Z&quot;</span></span>
-<span id="cb56-8"><a href="#cb56-8" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18</span><span class="op">+</span><span class="dv">08</span><span class="ch">:00</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssXXXX&#39;</span>)   <span class="co">-- &quot;1969-07-20T20:18:00+0800&quot;</span></span>
-<span id="cb56-9"><a href="#cb56-9" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18</span><span class="op">+</span><span class="dv">08</span><span class="ch">:00</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssXXXXX&#39;</span>)  <span class="co">-- &quot;1969-07-20T20:18:00+08:00&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`,  <span class="st">&#39;MMMM d, y&#39;</span>)                    <span class="co">-- &quot;July 20, 1969&quot;</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;MMM d, yyyy&#39;</span>)                   <span class="co">-- &quot;Jul 20, 1969&quot;</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;M-d-yy&#39;</span>)                        <span class="co">-- &quot;7-20-69&quot;</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;MM-d-y&#39;</span>)                        <span class="co">-- &quot;07-20-1969&quot;</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;MMMM d, y h:m a&#39;</span>)               <span class="co">-- &quot;July 20, 1969 8:18 PM&quot;</span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18Z</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssX&#39;</span>)           <span class="co">-- &quot;1969-07-20T20:18:00Z&quot;</span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18</span><span class="op">+</span><span class="dv">08</span><span class="ch">:00Z</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssX&#39;</span>)     <span class="co">-- &quot;1969-07-20T20:18:00Z&quot;</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18</span><span class="op">+</span><span class="dv">08</span><span class="ch">:00</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssXXXX&#39;</span>)   <span class="co">-- &quot;1969-07-20T20:18:00+0800&quot;</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true"></a>TO_STRING(`<span class="dv">1969</span><span class="op">-</span><span class="dv">07</span><span class="op">-</span>20T20<span class="ch">:18</span><span class="op">+</span><span class="dv">08</span><span class="ch">:00</span>`, <span class="st">&#39;y-MM-dd</span><span class="ch">&#39;&#39;</span><span class="st">T</span><span class="ch">&#39;&#39;</span><span class="st">H:m:ssXXXXX&#39;</span>)  <span class="co">-- &quot;1969-07-20T20:18:00+08:00&quot;</span></span></code></pre></div>
 <h3 id="to_timestamp">TO_TIMESTAMP</h3>
 <p>Given a string convert it to a timestamp. This is the inverse operation of <a href="#to_string"><code>TO_STRING</code></a></p>
 <dl>
@@ -1629,13 +1650,13 @@ Lilikoi unicorn</code></pre>
 </dd>
 </dl>
 <p>Single argument parsing an Ion timestamp:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2007T&#39;</span>)                         <span class="co">-- `2007T`</span></span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2007-02-23T12:14:33.079-08:00&#39;</span>) <span class="co">-- `2007-02-23T12:14:33.079-08:00`</span></span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2016&#39;</span>, <span class="st">&#39;y&#39;</span>)                     <span class="co">-- `2016T`</span></span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2016&#39;</span>, <span class="st">&#39;yyyy&#39;</span>)                  <span class="co">-- `2016T`</span></span>
-<span id="cb57-5"><a href="#cb57-5" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;02-2016&#39;</span>, <span class="st">&#39;MM-yyyy&#39;</span>)            <span class="co">-- `2016-02T`</span></span>
-<span id="cb57-6"><a href="#cb57-6" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;Feb 2016&#39;</span>, <span class="st">&#39;MMM yyyy&#39;</span>)          <span class="co">-- `2016-02T`</span></span>
-<span id="cb57-7"><a href="#cb57-7" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;Febrary 2016&#39;</span>, <span class="st">&#39;MMMM yyyy&#39;</span>)     <span class="co">-- `2016-02T`</span></span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2007T&#39;</span>)                         <span class="co">-- `2007T`</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2007-02-23T12:14:33.079-08:00&#39;</span>) <span class="co">-- `2007-02-23T12:14:33.079-08:00`</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2016&#39;</span>, <span class="st">&#39;y&#39;</span>)                     <span class="co">-- `2016T`</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;2016&#39;</span>, <span class="st">&#39;yyyy&#39;</span>)                  <span class="co">-- `2016T`</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;02-2016&#39;</span>, <span class="st">&#39;MM-yyyy&#39;</span>)            <span class="co">-- `2016-02T`</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;Feb 2016&#39;</span>, <span class="st">&#39;MMM yyyy&#39;</span>)          <span class="co">-- `2016-02T`</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true"></a><span class="fu">TO_TIMESTAMP</span>(<span class="st">&#39;Febrary 2016&#39;</span>, <span class="st">&#39;MMMM yyyy&#39;</span>)     <span class="co">-- `2016-02T`</span></span></code></pre></div>
 <p>Notes:</p>
 <p><a href="https://github.com/partiql/partiql-lang-kotlin/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+TO_TIMESTAMP+">All issues for PartiQL’s <code>TO_TIMESTAMP</code> function</a>.</p>
 <p>Internally, this is implemented with Java 8’s <code>java.time</code> package. There are a few differences between Ion’s timestamp and the <code>java.time</code> package that create a few hypothetically infrequently encountered caveats that do not really have good workarounds at this time.</p>
@@ -1663,13 +1684,13 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb58"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="st">&#39;       foobar         &#39;</span>)               <span class="co">-- &#39;foobar&#39;</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="st">&#39;      </span><span class="ch">\t</span><span class="st">foobar</span><span class="ch">\t</span><span class="st">         &#39;</span>)            <span class="co">-- &#39;\tfoobar\t&#39;</span></span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">LEADING</span> <span class="kw">FROM</span> <span class="st">&#39;       foobar         &#39;</span>)  <span class="co">-- &#39;foobar         &#39;</span></span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">TRAILING</span> <span class="kw">FROM</span> <span class="st">&#39;       foobar         &#39;</span>) <span class="co">-- &#39;       foobar&#39;</span></span>
-<span id="cb58-5"><a href="#cb58-5" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">BOTH</span> <span class="kw">FROM</span> <span class="st">&#39;       foobar         &#39;</span>)     <span class="co">-- &#39;foobar&#39;</span></span>
-<span id="cb58-6"><a href="#cb58-6" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">BOTH</span> <span class="st">&#39;😁&#39;</span> <span class="kw">FROM</span> <span class="st">&#39;😁😁foobar😁😁&#39;</span>)         <span class="co">-- &#39;foobar&#39;</span></span>
-<span id="cb58-7"><a href="#cb58-7" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">BOTH</span> <span class="st">&#39;12&#39;</span> <span class="kw">FROM</span> <span class="st">&#39;1112211foobar22211122&#39;</span>) <span class="co">-- &#39;foobar&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="st">&#39;       foobar         &#39;</span>)               <span class="co">-- &#39;foobar&#39;</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="st">&#39;      </span><span class="ch">\t</span><span class="st">foobar</span><span class="ch">\t</span><span class="st">         &#39;</span>)            <span class="co">-- &#39;\tfoobar\t&#39;</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">LEADING</span> <span class="kw">FROM</span> <span class="st">&#39;       foobar         &#39;</span>)  <span class="co">-- &#39;foobar         &#39;</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">TRAILING</span> <span class="kw">FROM</span> <span class="st">&#39;       foobar         &#39;</span>) <span class="co">-- &#39;       foobar&#39;</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">BOTH</span> <span class="kw">FROM</span> <span class="st">&#39;       foobar         &#39;</span>)     <span class="co">-- &#39;foobar&#39;</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">BOTH</span> <span class="st">&#39;😁&#39;</span> <span class="kw">FROM</span> <span class="st">&#39;😁😁foobar😁😁&#39;</span>)         <span class="co">-- &#39;foobar&#39;</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true"></a><span class="fu">TRIM</span>(<span class="kw">BOTH</span> <span class="st">&#39;12&#39;</span> <span class="kw">FROM</span> <span class="st">&#39;1112211foobar22211122&#39;</span>) <span class="co">-- &#39;foobar&#39;</span></span></code></pre></div>
 <h3 id="upper">UPPER</h3>
 <p>Given a string convert all lower case characters to upper case characters.</p>
 <dl>
@@ -1686,7 +1707,7 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb59"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true"></a><span class="fu">UPPER</span>(<span class="st">&#39;AbCdEfG!@#$&#39;</span>) <span class="co">-- &#39;ABCDEFG!@#$&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true"></a><span class="fu">UPPER</span>(<span class="st">&#39;AbCdEfG!@#$&#39;</span>) <span class="co">-- &#39;ABCDEFG!@#$&#39;</span></span></code></pre></div>
 <h3 id="utcnow">UTCNOW</h3>
 <p>Returns the current time in UTC as a timestamp.</p>
 <dl>
@@ -1703,7 +1724,7 @@ Lilikoi unicorn</code></pre>
 <dd>
 </dd>
 </dl>
-<div class="sourceCode" id="cb60"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true"></a>UTCNOW() <span class="co">-- 2017-10-13T16:02:11.123Z </span></span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true"></a>UTCNOW() <span class="co">-- 2017-10-13T16:02:11.123Z </span></span></code></pre></div>
 <h3 id="unix_timestamp">UNIX_TIMESTAMP</h3>
 <p>With no <code>timestamp</code> argument, returns the number of seconds since the last epoch (‘1970-01-01 00:00:00’ UTC).</p>
 <p>With a <code>timestamp</code> argument, returns the number of seconds from the last epoch to the given <code>timestamp</code> (possibly negative).</p>
@@ -1712,31 +1733,31 @@ Lilikoi unicorn</code></pre>
 <p>Purpose : <code>UNIX_TIMESTAMP()</code> called without a <code>timestamp</code> argument returns the number of whole seconds since the last epoch (‘1970-01-01 00:00:00’ UTC) as an Integer using <code>UTCNOW</code>.</p>
 <p><code>UNIX_TIMESTAMP()</code> called with a <code>timestamp</code> argument returns returns the number of seconds from the last epoch to the <code>timestamp</code> argument. If given a <code>timestamp</code> before the last epoch, <code>UNIX_TIMESTAMP</code> will return the number of seconds before the last epoch as a negative number. The return value will be a Decimal if and only if the given <code>timestamp</code> has a fractional seconds part.</p>
 <p>Examples :</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true"></a>UNIX_TIMESTAMP()                            <span class="co">-- 1507910531 (if current time is `2017-10-13T16:02:11Z`; # of seconds since last epoch as an Integer)</span></span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true"></a>UNIX_TIMESTAMP(`2020T`)                     <span class="co">-- 1577836800 (seconds from 2020 to the last epoch as an Integer)</span></span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span>01T`)                  <span class="co">-- &#39;&#39;</span></span>
-<span id="cb61-4"><a href="#cb61-4" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)               <span class="co">-- &#39;&#39;</span></span>
-<span id="cb61-5"><a href="#cb61-5" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00Z</span>`)         <span class="co">-- &#39;&#39;</span></span>
-<span id="cb61-6"><a href="#cb61-6" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00Z</span>`)      <span class="co">-- &#39;&#39;</span></span>
-<span id="cb61-7"><a href="#cb61-7" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.0</span>Z`)    <span class="co">-- 1577836800. (seconds from 2020 to the last epoch as a Decimal)</span></span>
-<span id="cb61-8"><a href="#cb61-8" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.00</span>Z`)   <span class="co">-- &#39;&#39;</span></span>
-<span id="cb61-9"><a href="#cb61-9" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z`)  <span class="co">-- &#39;&#39;</span></span>
-<span id="cb61-10"><a href="#cb61-10" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.100</span>Z`)  <span class="co">-- 1577836800.1</span></span>
-<span id="cb61-11"><a href="#cb61-11" aria-hidden="true"></a>UNIX_TIMESTAMP(`1969T`)                     <span class="co">-- -31536000 (timestamp is before last epoch)</span></span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true"></a>UNIX_TIMESTAMP()                            <span class="co">-- 1507910531 (if current time is `2017-10-13T16:02:11Z`; # of seconds since last epoch as an Integer)</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true"></a>UNIX_TIMESTAMP(`2020T`)                     <span class="co">-- 1577836800 (seconds from 2020 to the last epoch as an Integer)</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span>01T`)                  <span class="co">-- &#39;&#39;</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T`)               <span class="co">-- &#39;&#39;</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00Z</span>`)         <span class="co">-- &#39;&#39;</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00Z</span>`)      <span class="co">-- &#39;&#39;</span></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.0</span>Z`)    <span class="co">-- 1577836800. (seconds from 2020 to the last epoch as a Decimal)</span></span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.00</span>Z`)   <span class="co">-- &#39;&#39;</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.000</span>Z`)  <span class="co">-- &#39;&#39;</span></span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true"></a>UNIX_TIMESTAMP(`<span class="dv">2020</span><span class="op">-</span><span class="dv">01</span><span class="op">-</span>01T00<span class="ch">:00:00</span><span class="fl">.100</span>Z`)  <span class="co">-- 1577836800.1</span></span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true"></a>UNIX_TIMESTAMP(`1969T`)                     <span class="co">-- -31536000 (timestamp is before last epoch)</span></span></code></pre></div>
 <h3 id="from_unixtime">FROM_UNIXTIME</h3>
 <p>Converts the given unix epoch into a timestamp.</p>
 <p>Signature : <code>FROM_UNIXTIME: Integer|Decimal -&gt; Timestamp</code></p>
 <p>Header : <code>FROM_UNIXTIME(unix_timestamp)</code></p>
 <p>Purpose : When given a non-negative numeric value, returns a timestamp after the last epoch. When given a negative numeric value, returns a timestamp before the last epoch. The returned timestamp has fractional seconds depending on if the value is a decimal.</p>
 <p>Examples :</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true"></a>FROM_UNIXTIME(<span class="op">-</span><span class="dv">1</span>)           <span class="co">-- `1969-12-31T23:59:59-00:00`      (negative unix_timestamp; returns timestamp before last epoch)</span></span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true"></a>FROM_UNIXTIME(<span class="op">-</span><span class="fl">0.1</span>)         <span class="co">-- `1969-12-31T23:59:59.9-00:00`    (unix_timestamp is decimal so timestamp has fractional seconds)</span></span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">0</span>)            <span class="co">-- `1970-01-01T00:00:00.000-00:00`</span></span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.001</span>)        <span class="co">-- `1970-01-01T00:00:00.001-00:00`  (decimal precision to fractional second precision) </span></span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.01</span>)         <span class="co">-- `1970-01-01T00:00:00.01-00:00`</span></span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.1</span>)          <span class="co">-- `1970-01-01T00:00:00.1-00:00`</span></span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">1</span>)            <span class="co">-- `1970-01-01T00:00:01-00:00`</span></span>
-<span id="cb62-8"><a href="#cb62-8" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">1577836800</span>)   <span class="co">-- `2020-01-01T00:00:00-00:00`      (unix_timestamp is Integer so no fractional seconds)</span></span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true"></a>FROM_UNIXTIME(<span class="op">-</span><span class="dv">1</span>)           <span class="co">-- `1969-12-31T23:59:59-00:00`      (negative unix_timestamp; returns timestamp before last epoch)</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true"></a>FROM_UNIXTIME(<span class="op">-</span><span class="fl">0.1</span>)         <span class="co">-- `1969-12-31T23:59:59.9-00:00`    (unix_timestamp is decimal so timestamp has fractional seconds)</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">0</span>)            <span class="co">-- `1970-01-01T00:00:00.000-00:00`</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.001</span>)        <span class="co">-- `1970-01-01T00:00:00.001-00:00`  (decimal precision to fractional second precision) </span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.01</span>)         <span class="co">-- `1970-01-01T00:00:00.01-00:00`</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true"></a>FROM_UNIXTIME(<span class="fl">0.1</span>)          <span class="co">-- `1970-01-01T00:00:00.1-00:00`</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">1</span>)            <span class="co">-- `1970-01-01T00:00:01-00:00`</span></span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true"></a>FROM_UNIXTIME(<span class="dv">1577836800</span>)   <span class="co">-- `2020-01-01T00:00:00-00:00`      (unix_timestamp is Integer so no fractional seconds)</span></span></code></pre></div>
 <h1 class="unnumbered" id="references">References</h1>
 <div id="refs" class="references" role="doc-bibliography">
 <div id="ref-IonSpec">

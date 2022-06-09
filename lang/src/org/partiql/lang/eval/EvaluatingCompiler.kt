@@ -84,7 +84,6 @@ import java.util.LinkedList
 import java.util.Stack
 import java.util.TreeSet
 import java.util.regex.Pattern
-import kotlin.Comparator
 
 /**
  * A thunk with no parameters other than the current environment.
@@ -439,19 +438,10 @@ internal class EvaluatingCompiler(
             is PartiqlAst.Expr.Sexp -> compileSeq(ExprValueType.SEXP, expr.values, metas)
             is PartiqlAst.Expr.Bag -> compileSeq(ExprValueType.BAG, expr.values, metas)
 
-            // set operators
-            is PartiqlAst.Expr.Intersect,
-            is PartiqlAst.Expr.Union,
-            is PartiqlAst.Expr.Except -> {
-                err(
-                    "${expr.javaClass.canonicalName} is not yet supported",
-                    ErrorCode.EVALUATOR_FEATURE_NOT_SUPPORTED_YET,
-                    errorContextFrom(metas).also {
-                        it[Property.FEATURE_NAME] = expr.javaClass.canonicalName
-                    },
-                    internal = false
-                )
-            }
+            // bag operators
+            is PartiqlAst.Expr.Union -> compileUnion(expr, metas)
+            is PartiqlAst.Expr.Intersect -> compileIntersect(expr, metas)
+            is PartiqlAst.Expr.Except -> compileExcept(expr, metas)
         }
     }
 
@@ -2917,6 +2907,39 @@ internal class EvaluatingCompiler(
         return thunkFactory.thunkEnv(metas) { env ->
             val procedureArgValues = argThunks.map { it(env) }
             procedure.call(env.session, procedureArgValues)
+        }
+    }
+
+    private fun compileUnion(node: PartiqlAst.Expr.Union, metas: MetaContainer): ThunkEnv {
+        val lThunk = compileAstExpr(node.operands[0])
+        val rThunk = compileAstExpr(node.operands[1])
+        val union = BagOp(node.setq, valueFactory, BagOp.union)
+        return thunkFactory.thunkEnv(metas) { env ->
+            val lhs = lThunk.invoke(env)
+            val rhs = rThunk.invoke(env)
+            union.evaluate(lhs, rhs)
+        }
+    }
+
+    private fun compileIntersect(node: PartiqlAst.Expr.Intersect, metas: MetaContainer): ThunkEnv {
+        val lThunk = compileAstExpr(node.operands[0])
+        val rThunk = compileAstExpr(node.operands[1])
+        val union = BagOp(node.setq, valueFactory, BagOp.intersect)
+        return thunkFactory.thunkEnv(metas) { env ->
+            val lhs = lThunk.invoke(env)
+            val rhs = rThunk.invoke(env)
+            union.evaluate(lhs, rhs)
+        }
+    }
+
+    private fun compileExcept(node: PartiqlAst.Expr.Except, metas: MetaContainer): ThunkEnv {
+        val lThunk = compileAstExpr(node.operands[0])
+        val rThunk = compileAstExpr(node.operands[1])
+        val union = BagOp(node.setq, valueFactory, BagOp.except)
+        return thunkFactory.thunkEnv(metas) { env ->
+            val lhs = lThunk.invoke(env)
+            val rhs = rThunk.invoke(env)
+            union.evaluate(lhs, rhs)
         }
     }
 

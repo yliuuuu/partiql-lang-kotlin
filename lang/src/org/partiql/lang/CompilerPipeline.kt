@@ -29,6 +29,7 @@ import org.partiql.lang.eval.Expression
 import org.partiql.lang.eval.ThunkReturnTypeAssertions
 import org.partiql.lang.eval.builtins.createBuiltinFunctions
 import org.partiql.lang.eval.builtins.storedprocedure.StoredProcedure
+import org.partiql.lang.eval.functions.ScalarLibBuiltin
 import org.partiql.lang.eval.visitors.PipelinedVisitorTransform
 import org.partiql.lang.eval.visitors.StaticTypeInferenceVisitorTransform
 import org.partiql.lang.eval.visitors.StaticTypeVisitorTransform
@@ -219,7 +220,7 @@ interface CompilerPipeline {
                 }
             }
 
-            val builtinFunctions = createBuiltinFunctions(valueFactory).associateBy {
+            val builtinFunctions = ScalarLibBuiltin(valueFactory).functions.associateBy {
                 it.signature.name
             }
 

@@ -1,6 +1,7 @@
 name: "Build and Report Generation"
 on: 
   push:
+    branches : [main]
     paths:
       - '**'
       - '!docs/**'
@@ -25,8 +26,26 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+          cache: gradle
       - name: Build and test
-        run: ./gradlew build
+        run: ./gradlew build -x fuzzTest
+
+  fuzz-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Use Java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          cache: gradle
+      - name: Build and test
+        run: ./gradlew fuzzTest
 
   report-generation:
     runs-on: ubuntu-latest
@@ -38,6 +57,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+          cache: gradle
       - name: Generate test coverage report
         run: ./gradlew build jacocoTestReport
 

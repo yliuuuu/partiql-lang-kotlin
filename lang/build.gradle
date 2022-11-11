@@ -112,7 +112,51 @@ sourceSets {
         resources.srcDirs = ['src/jmh/resources']
         compileClasspath += sourceSets.main.runtimeClasspath
     }
+//    fuzzTest {
+//        compileClasspath += sourceSets.main.compileClasspath
+//        runtimeClasspath += sourceSets.main.runtimeClasspath
+////        fuzzTest.srcDirs = ['lang/fuzzTest/org/partiql/lang']
+//        kotlin.srcDirs += ['fuzzTest']
+//    }
 }
+//
+//configurations {
+//    integrationTestImplementation.extendsFrom testImplementation
+//    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+//}
+
+//dependencies {
+////    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+//
+////    api 'com.amazon.ion:ion-java:1.9.0'
+////    api project(":lib:partiql-isl")
+////    // TODO https://github.com/partiql/partiql-lang-kotlin/issues/803
+////    api 'com.amazon.ion:ion-element:1.0.0'
+////    api 'org.partiql:partiql-ir-generator-runtime:0.6.0'
+////
+////    implementation 'org.apache.commons:commons-csv:1.8'
+////
+////    // Test dependencies
+////    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+////    testImplementation 'pl.pragmatists:JUnitParams:[1.0.0,1.1.0)'
+////    testImplementation 'org.assertj:assertj-core:[3.11.0,3.12.0)'
+////
+////    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+////    testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
+////    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+////
+////
+////    integrationTestImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+////    integrationTestImplementation 'pl.pragmatists:JUnitParams:[1.0.0,1.1.0)'
+////    integrationTestImplementation 'org.assertj:assertj-core:[3.11.0,3.12.0)'
+//
+////    integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+////    integrationTestImplementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
+////    integrationTestImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+////    integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+////    integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+//}
+
 
 runKtlintCheckOverMainSourceSet.dependsOn generatePigDomains
 
@@ -201,5 +245,33 @@ compileKotlin.dependsOn generateGrammarSource
 processResources {
     from (sourceSets.main.antlr) {
         include "**/*.g4"
+    }
+}
+
+testing {
+    suites {
+        fuzzTest(JvmTestSuite) {
+            dependencies {
+                implementation project(':lang').sourceSets.test.output
+                implementation project(':lang')
+                implementation "junit:junit:4.12"
+                implementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+                implementation 'pl.pragmatists:JUnitParams:[1.0.0,1.1.0)'
+            }
+            sources {
+                kotlin {
+                    srcDirs = ['fuzzTest']
+                }
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        maxHeapSize = '4g'
+                        maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+                    }
+                }
+            }
+        }
     }
 }

@@ -16,3 +16,4 @@ data class CustomType(
     val typedOpParameter: TypedOpParameter,
     val aliases: List<String> = listOf()
 )
+

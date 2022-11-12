@@ -62,16 +62,41 @@ configure(subprojects.findAll { it.name != 'example' }) {
 subprojects { proj ->
 
     apply plugin: "org.jetbrains.kotlin.jvm"
+
+    testing {
+        suites {
+            fuzzTest(JvmTestSuite) {
+                dependencies {
+                    implementation project.sourceSets.test.output
+                    implementation project
+                    implementation "junit:junit:4.12"
+                    implementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+                    implementation 'pl.pragmatists:JUnitParams:[1.0.0,1.1.0)'
+                }
+                sources {
+                    kotlin {
+                        srcDirs = ['fuzzTest']
+                    }
+                }
+            }
+        }
+    }
+
+    // Configure the check task to depend on all Fuzz Test targets.
+    tasks.named('check') {
+        dependsOn.add(testing.suites.fuzzTest)
+    }
+
     tasks.withType(Test) {
         jvmArgs += ['-Duser.language=en', '-Duser.country=US']
         maxHeapSize = "4g"
-        maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
         testLogging {
             events "failed"
             exceptionFormat "full"
         }
-        useJUnitPlatform()
         jacocoTestReport {
+//            dependsOn.add(testing.suites.fuzzTest)
+            executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
             reports {
                 xml.required.set(true)
                 html.required.set(true)
@@ -86,11 +111,11 @@ subprojects { proj ->
                     ])
                 }))
             }
-        }
 
-        // Make the ktlinCheck task run *before* unit tests--faster failure here means we won't need to re-run the
-        // tests (which can take several minutes) after applying formatting fixes.
-        dependsOn.add(ktlintCheck)
+            // Make the ktlinCheck task run *before* unit tests--faster failure here means we won't need to re-run the
+            // tests (which can take several minutes) after applying formatting fixes.
+            dependsOn.add(ktlintCheck)
+        }
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

@@ -203,35 +203,3 @@ processResources {
         include "**/*.g4"
     }
 }
-
-testing {
-    suites {
-        fuzzTest(JvmTestSuite) {
-            dependencies {
-                implementation project(':lang').sourceSets.test.output
-                implementation project(':lang')
-                implementation "junit:junit:4.12"
-                implementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-                implementation 'pl.pragmatists:JUnitParams:[1.0.0,1.1.0)'
-            }
-            sources {
-                kotlin {
-                    srcDirs = ['fuzzTest']
-                }
-            }
-
-            targets {
-                all {
-                    testTask.configure {
-                        maxHeapSize = '4g'
-                        maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-                    }
-                }
-            }
-        }
-    }
-}
-
-tasks.named('check') {
-    dependsOn(testing.suites.fuzzTest)
-}

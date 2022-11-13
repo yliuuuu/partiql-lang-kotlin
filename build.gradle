@@ -95,8 +95,8 @@ subprojects { proj ->
             exceptionFormat "full"
         }
         jacocoTestReport {
-//            dependsOn.add(testing.suites.fuzzTest)
-            executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
+            // The test Coverage report should not depend on unit test. We want the code coverage to be deterministic.
+            executionData.setFrom(fileTree(buildDir).include("/jacoco/test.exec"))
             reports {
                 xml.required.set(true)
                 html.required.set(true)

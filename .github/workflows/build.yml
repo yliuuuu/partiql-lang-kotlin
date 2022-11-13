@@ -68,8 +68,9 @@ jobs:
       - name: Upload CLI coverage
         uses: codecov/codecov-action@v3
         with:
-          file: cli/build/reports/jacoco/test/jacocoTestReport.xml
+          files: cli/build/reports/jacoco/test/jacocoTestReport.xml
           flags: CLI
+          verbose: true
 
       - name: Upload LANG coverage
         uses: codecov/codecov-action@v3

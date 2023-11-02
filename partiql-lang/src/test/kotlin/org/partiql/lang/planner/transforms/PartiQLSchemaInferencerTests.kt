@@ -132,7 +132,7 @@ class PartiQLSchemaInferencerTests {
 
     companion object {
 
-        private val root = this::class.java.getResource("/catalogs/default")!!.toURI().toPath().pathString
+        private val root = this::class.java.classLoader.getResource("/catalogs/default")!!.toURI().toPath().pathString
 
         private val PLUGINS = listOf(LocalPlugin())
 

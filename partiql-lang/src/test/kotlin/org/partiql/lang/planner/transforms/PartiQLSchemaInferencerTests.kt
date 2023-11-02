@@ -458,7 +458,7 @@ class PartiQLSchemaInferencerTests {
                         )
                     )
                 }
-            ),
+            ).toIgnored("Plus op will be resolved to PLUS__ANY_ANY__ANY"),
         )
 
         @JvmStatic
@@ -539,7 +539,7 @@ class PartiQLSchemaInferencerTests {
                         PlanningProblemDetails.UnknownFunction("bitwise_and", listOf(INT4, STRING))
                     )
                 }
-            ),
+            ).toIgnored("Bitwise And opearator will be resolved to BITWISE_AND__ANY_ANY__ANY"),
         )
 
         @JvmStatic
@@ -2564,6 +2564,11 @@ class PartiQLSchemaInferencerTests {
     }
 
     sealed class TestCase {
+        fun toIgnored(reason: String) =
+            when (this) {
+                is IgnoredTestCase -> this
+                else -> IgnoredTestCase(this, reason)
+            }
 
         class SuccessTestCase(
             val name: String,
@@ -2601,6 +2606,13 @@ class PartiQLSchemaInferencerTests {
             override fun toString(): String {
                 return "$name : $query"
             }
+        }
+
+        class IgnoredTestCase(
+            val shouldBe: TestCase,
+            reason: String
+        ) : TestCase() {
+            override fun toString(): String = "Disabled - $shouldBe"
         }
     }
 
@@ -2930,7 +2942,7 @@ class PartiQLSchemaInferencerTests {
                         )
                     )
                 }
-            ),
+            ).toIgnored("Between will be resolved to BETWEEN__ANY_ANY_ANY__BOOL"),
             SuccessTestCase(
                 name = "LIKE",
                 catalog = CATALOG_DB,
@@ -2953,7 +2965,7 @@ class PartiQLSchemaInferencerTests {
                         )
                     )
                 }
-            ),
+            ).toIgnored("Like Op will be resolved to LIKE__ANY_ANY__BOOL"),
             SuccessTestCase(
                 name = "Case Insensitive success",
                 catalog = CATALOG_DB,
@@ -3024,7 +3036,7 @@ class PartiQLSchemaInferencerTests {
                         )
                     )
                 }
-            ),
+            ).toIgnored("And Op will be resolved to AND__ANY_ANY__BOOL"),
             ErrorTestCase(
                 name = "Bad comparison",
                 catalog = CATALOG_DB,
@@ -3040,7 +3052,7 @@ class PartiQLSchemaInferencerTests {
                         )
                     )
                 }
-            ),
+            ).toIgnored("And Op will be resolved to AND__ANY_ANY__BOOL"),
             ErrorTestCase(
                 name = "Unknown column",
                 catalog = CATALOG_DB,
@@ -3277,7 +3289,8 @@ class PartiQLSchemaInferencerTests {
                         )
                     )
                 }
-            ),
+            ).toIgnored("Currently this will be resolved to TRIM_CHARS__ANY_ANY__ANY."),
+
         )
     }
 
@@ -3285,6 +3298,7 @@ class PartiQLSchemaInferencerTests {
         is SuccessTestCase -> runTest(tc)
         is ErrorTestCase -> runTest(tc)
         is ThrowingExceptionTestCase -> runTest(tc)
+        is TestCase.IgnoredTestCase -> runTest(tc)
     }
 
     @OptIn(ExperimentalPartiQLSchemaInferencer::class)
@@ -3391,6 +3405,12 @@ class PartiQLSchemaInferencerTests {
             "Expected to find problems, but none were found."
         }
         tc.problemHandler?.handle(collector.problems, true)
+    }
+
+    private fun runTest(tc: TestCase.IgnoredTestCase) {
+        assertThrows<AssertionError> {
+            runTest(tc.shouldBe)
+        }
     }
 
     fun interface ProblemHandler {

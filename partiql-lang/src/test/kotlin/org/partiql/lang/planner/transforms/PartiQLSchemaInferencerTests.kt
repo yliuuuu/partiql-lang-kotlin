@@ -16,6 +16,7 @@ import org.partiql.annotations.ExperimentalPartiQLSchemaInferencer
 import org.partiql.errors.Problem
 import org.partiql.errors.UNKNOWN_PROBLEM_LOCATION
 import org.partiql.lang.errors.ProblemCollector
+import org.partiql.lang.planner.transforms.PartiQLSchemaInferencerTests.ProblemHandler
 import org.partiql.lang.planner.transforms.PartiQLSchemaInferencerTests.TestCase.ErrorTestCase
 import org.partiql.lang.planner.transforms.PartiQLSchemaInferencerTests.TestCase.SuccessTestCase
 import org.partiql.lang.planner.transforms.PartiQLSchemaInferencerTests.TestCase.ThrowingExceptionTestCase
@@ -43,7 +44,10 @@ import org.partiql.types.StaticType.Companion.STRING
 import org.partiql.types.StaticType.Companion.unionOf
 import org.partiql.types.StructType
 import org.partiql.types.TupleConstraint
+import java.net.URI
+import java.nio.file.FileSystem
 import java.nio.file.FileSystemNotFoundException
+import java.nio.file.FileSystems
 import java.time.Instant
 import java.util.stream.Stream
 import kotlin.io.path.pathString
@@ -136,12 +140,14 @@ class PartiQLSchemaInferencerTests {
         private val root = try {
             this::class.java.getResource("/catalogs/default")!!.toURI().toPath().pathString
         } catch (ex: FileSystemNotFoundException) {
-            val URL = try { this::class.java.getResource("/catalogs/default")!! } catch (e: Exception) { null }
-            val URI = try { URL?.toURI() } catch (e: Exception) { null }
-            val path = try { URI?.toPath() } catch (e: Exception) { null }
-            val fileSystem = try { path?.fileSystem.toString() } catch (e: Exception) { null }
-            val string = try { path?.pathString } catch (e: Exception) { null }
-            throw InternalError("URL : $URL, URI: $URI, path: $path, fileStytme: $fileSystem, pathString: $string")
+            // Github build attempted to retrieve the resource from
+            // jar:file:/home/runner/work/partiql-lang-kotlin/partiql-lang-kotlin/partiql-planner/build/libs/partiql-planner-0.14.1-alpha.1-test-fixtures.jar!/catalogs/default,
+            val URI = this::class.java.getResource("/catalogs/default")!!.toURI()
+            val env: Map<String, String> = HashMap()
+            val parts = URI.toString().split("!")
+            val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
+            val path = fs.getPath(parts[1])
+            path.pathString
         }
 
         private val PLUGINS = listOf(LocalPlugin())

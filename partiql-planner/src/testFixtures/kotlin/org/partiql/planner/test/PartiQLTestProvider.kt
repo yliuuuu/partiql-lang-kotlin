@@ -15,7 +15,9 @@
 package org.partiql.planner.test
 
 import java.io.File
+import java.nio.file.FileSystems
 import java.nio.file.Path
+import kotlin.io.path.pathString
 import kotlin.io.path.toPath
 
 /**
@@ -37,7 +39,17 @@ class PartiQLTestProvider {
      * Load test groups from a directory.
      */
     public fun load(root: Path? = null) {
-        val dir = (root ?: default).toFile()
+        val dir = try {
+            (root ?: default).toFile()
+        } catch (e: UnsupportedOperationException) {
+            throw InternalError(
+                """
+                    path: ${default.pathString},
+                    fileSystem: ${default.fileSystem},
+                    defaultFileSystem: ${FileSystems.getDefault()}
+                """.trimIndent()
+            )
+        }
         dir.listFiles { f -> f.isDirectory }!!.map {
             for (test in load(it)) {
                 map[test.key] = test

@@ -15,7 +15,12 @@
 package org.partiql.planner.test
 
 import java.io.File
+import java.net.URI
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
+import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.pathString
 import kotlin.io.path.toPath
 
 /**
@@ -38,37 +43,15 @@ class PartiQLTestProvider {
      */
     public fun load(root: Path? = null) {
         val dir = try {
-            (root ?: default).toFile()
+             (root ?: default).toFile()
         } catch (e: UnsupportedOperationException) {
             // for GitHub Build
-            val path = root ?: default
-            val absolutePath = path.toAbsolutePath()
-            val URIFromPath = try { path.toUri() } catch (e: Exception) { null }
-            val URIFromAbsolutePath = try { absolutePath.toUri() } catch (e: Exception) { null }
-            val fileFromURI = try {
-                if (URIFromPath != null) {
-                    File(URIFromPath).name
-                } else {
-                    null
-                }
-            } catch (e: Exception) { null }
-            val fileFromURIAbsolute = try {
-                if (URIFromAbsolutePath != null) {
-                    File(URIFromAbsolutePath).name
-                } else {
-                    null
-                }
-            } catch (e: Exception) { null }
-            throw InternalError(
-                """
-                path: $path,
-                absolutePath: $path,
-                URIFromPath: $URIFromPath,
-                URIFromAbsolutePath : $URIFromAbsolutePath,
-                fileFromURI: $fileFromURI,
-                fileFromURIAbsolute: $fileFromURIAbsolute
-                """.trimIndent()
-            )
+            val URI = (root ?: default).toUri()
+            val env: Map<String, String> = HashMap()
+            val parts = URI.toString().split("!")
+            val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
+            val path = fs.getPath(parts[1])
+            path.toFile()
         }
         dir.listFiles { f -> f.isDirectory }!!.map {
             for (test in load(it)) {

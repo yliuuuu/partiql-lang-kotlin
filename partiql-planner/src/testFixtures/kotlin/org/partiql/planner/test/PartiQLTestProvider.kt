@@ -17,7 +17,6 @@ package org.partiql.planner.test
 import java.io.File
 import java.net.URI
 import java.nio.file.FileSystem
-import java.nio.file.FileSystems
 import java.nio.file.Path
 import kotlin.io.path.toPath
 
@@ -44,13 +43,12 @@ class PartiQLTestProvider {
             (root ?: default).toFile()
         } catch (e: UnsupportedOperationException) {
             // for GitHub Build
-            val URI = (root ?: default).toUri()
-            val env: Map<String, String> = HashMap()
+            val path = root ?: default
+            val URI = path.toUri()
             val parts = URI.toString().split("!")
-            val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
-            val path = fs.getPath(parts[1])
-            val files = path.toFile()
-            fs.close()
+            val fs: FileSystem = path.fileSystem
+            val pathResolved = fs.getPath(parts[1])
+            val files = pathResolved.toFile()
             files
         }
         dir.listFiles { f -> f.isDirectory }!!.map {

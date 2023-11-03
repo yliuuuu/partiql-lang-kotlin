@@ -45,7 +45,6 @@ import org.partiql.types.StaticType.Companion.unionOf
 import org.partiql.types.StructType
 import org.partiql.types.TupleConstraint
 import java.net.URI
-import java.nio.file.FileSystem
 import java.nio.file.FileSystemNotFoundException
 import java.nio.file.FileSystems
 import java.time.Instant
@@ -58,8 +57,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PartiQLSchemaInferencerTests {
-
-    private val provider = PartiQLTestProvider()
 
     init {
         // load test inputs
@@ -136,6 +133,7 @@ class PartiQLSchemaInferencerTests {
     fun testCaseWhens(tc: TestCase) = runTest(tc)
 
     companion object {
+        private val provider = PartiQLTestProvider
 
         private val root = try {
             this::class.java.getResource("/catalogs/default")!!.toURI().toPath().pathString
@@ -145,9 +143,7 @@ class PartiQLSchemaInferencerTests {
             val URI = this::class.java.getResource("/catalogs/default")!!.toURI()
             val env: Map<String, String> = HashMap()
             val parts = URI.toString().split("!")
-            val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
-            val path = fs.getPath(parts[1])
-            fs.close()
+            val path = FileSystems.getFileSystem(URI.resolve(parts[0])).getPath(parts[1])
             path.pathString
         }
 

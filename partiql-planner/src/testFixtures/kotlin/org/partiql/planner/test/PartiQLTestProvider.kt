@@ -16,14 +16,14 @@ package org.partiql.planner.test
 
 import java.io.File
 import java.net.URI
-import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 import java.nio.file.Path
 import kotlin.io.path.toPath
 
 /**
  * The PartiQLTestProvider is a simple utility for indexing SQL statements within files for re-use across library tests.
  */
-class PartiQLTestProvider {
+object PartiQLTestProvider {
 
     /**
      * Backing map for test input lookup.
@@ -43,11 +43,11 @@ class PartiQLTestProvider {
             (root ?: default).toFile()
         } catch (e: UnsupportedOperationException) {
             // for GitHub Build
-            val path = root ?: default
-            val URI = path.toUri()
+            val URI = default.toUri()
+            val env: Map<String, String> = HashMap()
             val parts = URI.toString().split("!")
-            val fs: FileSystem = path.fileSystem
-            val pathResolved = fs.getPath(parts[1])
+            val fileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
+            val pathResolved = fileSystem.getPath((root ?: default).toString())
             val files = pathResolved.toFile()
             files
         }

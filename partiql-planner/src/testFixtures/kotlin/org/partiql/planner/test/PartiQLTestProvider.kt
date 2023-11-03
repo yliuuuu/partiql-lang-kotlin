@@ -18,9 +18,7 @@ import java.io.File
 import java.net.URI
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
-import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.pathString
 import kotlin.io.path.toPath
 
 /**
@@ -43,7 +41,7 @@ class PartiQLTestProvider {
      */
     public fun load(root: Path? = null) {
         val dir = try {
-             (root ?: default).toFile()
+            (root ?: default).toFile()
         } catch (e: UnsupportedOperationException) {
             // for GitHub Build
             val URI = (root ?: default).toUri()

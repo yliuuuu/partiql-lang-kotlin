@@ -152,6 +152,7 @@ class PartiQLSchemaInferencerTests {
             val parts = URI.toString().split("!")
             val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
             val path = fs.getPath(parts[1])
+            fs.close()
             path.pathString
         }
 

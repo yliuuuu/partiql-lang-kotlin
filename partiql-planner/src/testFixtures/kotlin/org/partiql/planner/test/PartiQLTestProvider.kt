@@ -49,7 +49,9 @@ class PartiQLTestProvider {
             val parts = URI.toString().split("!")
             val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
             val path = fs.getPath(parts[1])
-            path.toFile()
+            val files = path.toFile()
+            fs.close()
+            files
         }
         dir.listFiles { f -> f.isDirectory }!!.map {
             for (test in load(it)) {

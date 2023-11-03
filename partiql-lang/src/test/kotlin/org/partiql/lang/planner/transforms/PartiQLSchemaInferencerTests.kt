@@ -43,6 +43,7 @@ import org.partiql.types.StaticType.Companion.STRING
 import org.partiql.types.StaticType.Companion.unionOf
 import org.partiql.types.StructType
 import org.partiql.types.TupleConstraint
+import java.nio.file.FileSystemNotFoundException
 import java.time.Instant
 import java.util.stream.Stream
 import kotlin.io.path.pathString
@@ -132,7 +133,16 @@ class PartiQLSchemaInferencerTests {
 
     companion object {
 
-        private val root = this::class.java.classLoader.getResource("/catalogs/default")!!.toURI().toPath().pathString
+        private val root = try {
+            this::class.java.getResource("/catalogs/default")!!.toURI().toPath().pathString
+        } catch (ex: FileSystemNotFoundException) {
+            val URL = try { this::class.java.getResource("/catalogs/default")!! } catch (e: Exception) { null }
+            val URI = try { URL?.toURI() } catch (e: Exception) { null }
+            val path = try { URI?.toPath() } catch (e: Exception) { null }
+            val fileSystem = try { path?.fileSystem.toString() } catch (e: Exception) { null }
+            val string = try { path?.pathString } catch (e: Exception) { null }
+            throw InternalError("URL : $URL, URI: $URI, path: $path, fileStytme: $fileSystem, pathString: $string")
+        }
 
         private val PLUGINS = listOf(LocalPlugin())
 

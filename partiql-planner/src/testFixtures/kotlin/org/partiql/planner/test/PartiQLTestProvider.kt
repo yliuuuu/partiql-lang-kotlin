@@ -40,9 +40,35 @@ class PartiQLTestProvider {
         val dir = try {
             (root ?: default).toFile()
         } catch (e: UnsupportedOperationException) {
-            // for Github Build
-            val absolutePath = (root ?: default).toAbsolutePath()
-            File(absolutePath.toUri())
+            // for GitHub Build
+            val path = root ?: default
+            val absolutePath = path.toAbsolutePath()
+            val URIFromPath = try { path.toUri() } catch (e: Exception) { null }
+            val URIFromAbsolutePath = try { absolutePath.toUri() } catch (e: Exception) { null }
+            val fileFromURI = try {
+                if (URIFromPath != null) {
+                    File(URIFromPath).name
+                } else {
+                    null
+                }
+            } catch (e: Exception) { null }
+            val fileFromURIAbsolute = try {
+                if (URIFromAbsolutePath != null) {
+                    File(URIFromAbsolutePath).name
+                } else {
+                    null
+                }
+            } catch (e: Exception) { null }
+            throw InternalError(
+                """
+                path: $path,
+                absolutePath: $path,
+                URIFromPath: $URIFromPath,
+                URIFromAbsolutePath : $URIFromAbsolutePath,
+                fileFromURI: $fileFromURI,
+                fileFromURIAbsolute: $fileFromURIAbsolute
+                """.trimIndent()
+            )
         }
         dir.listFiles { f -> f.isDirectory }!!.map {
             for (test in load(it)) {

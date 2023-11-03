@@ -148,7 +148,12 @@ class PartiQLSchemaInferencerTests {
             val URI = this::class.java.getResource("/catalogs/default")!!.toURI()
             val env: Map<String, String> = HashMap()
             val parts = URI.toString().split("!")
-            val path = FileSystems.getFileSystem(URI.resolve(parts[0])).getPath(parts[1])
+            val fileSystem = try {
+                FileSystems.getFileSystem(URI.resolve(parts[0]))
+            } catch (ex: FileSystemNotFoundException) {
+                FileSystems.newFileSystem(URI.resolve(parts[0]), env)
+            }
+            val path = fileSystem.getPath(parts[1])
             path.pathString
         }
 

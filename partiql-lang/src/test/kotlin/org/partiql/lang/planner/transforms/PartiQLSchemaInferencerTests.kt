@@ -44,9 +44,6 @@ import org.partiql.types.StaticType.Companion.STRING
 import org.partiql.types.StaticType.Companion.unionOf
 import org.partiql.types.StructType
 import org.partiql.types.TupleConstraint
-import java.net.URI
-import java.nio.file.FileSystemNotFoundException
-import java.nio.file.FileSystems
 import java.time.Instant
 import java.util.stream.Stream
 import kotlin.io.path.pathString
@@ -140,22 +137,7 @@ class PartiQLSchemaInferencerTests {
     companion object {
         private val provider = PartiQLTestProvider
 
-        private val root = try {
-            this::class.java.getResource("/catalogs/default")!!.toURI().toPath().pathString
-        } catch (ex: FileSystemNotFoundException) {
-            // Github build attempted to retrieve the resource from
-            // jar:file:/home/runner/work/partiql-lang-kotlin/partiql-lang-kotlin/partiql-planner/build/libs/partiql-planner-0.14.1-alpha.1-test-fixtures.jar!/catalogs/default,
-            val URI = this::class.java.getResource("/catalogs/default")!!.toURI()
-            val env: Map<String, String> = HashMap()
-            val parts = URI.toString().split("!")
-            val fileSystem = try {
-                FileSystems.getFileSystem(URI.resolve(parts[0]))
-            } catch (ex: FileSystemNotFoundException) {
-                FileSystems.newFileSystem(URI.resolve(parts[0]), env)
-            }
-            val path = fileSystem.getPath(parts[1])
-            path.pathString
-        }
+        private val root = PartiQLTestProvider.javaClass.getResource("/catalogs/default")!!.toURI().toPath().pathString
 
         private val PLUGINS = listOf(LocalPlugin())
 

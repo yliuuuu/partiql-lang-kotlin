@@ -54,6 +54,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PartiQLSchemaInferencerTests {
+    private val provider = PartiQLTestProvider()
 
     init {
         // load test inputs
@@ -130,9 +131,7 @@ class PartiQLSchemaInferencerTests {
     fun testCaseWhens(tc: TestCase) = runTest(tc)
 
     companion object {
-        private val provider = PartiQLTestProvider
-
-        private val root = PartiQLTestProvider.javaClass.getResource("/catalogs/default")!!.toURI().toPath().pathString
+        private val root = PartiQLTestProvider().javaClass.getResource("/catalogs/default")!!.toURI().toPath().pathString
 
         private val PLUGINS = listOf(LocalPlugin())
 

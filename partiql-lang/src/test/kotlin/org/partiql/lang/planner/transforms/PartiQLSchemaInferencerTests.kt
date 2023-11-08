@@ -3,6 +3,7 @@ package org.partiql.lang.planner.transforms
 import com.amazon.ionelement.api.field
 import com.amazon.ionelement.api.ionString
 import com.amazon.ionelement.api.ionStructOf
+import com.amazon.ionelement.api.loadSingleElement
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.parallel.Execution
@@ -25,7 +26,9 @@ import org.partiql.planner.PartiQLPlanner
 import org.partiql.planner.PlanningProblemDetails
 import org.partiql.planner.test.PartiQLTest
 import org.partiql.planner.test.PartiQLTestProvider
-import org.partiql.plugins.local.LocalPlugin
+import org.partiql.plugins.local.toStaticType
+import org.partiql.plugins.memory.MemoryCatalog
+import org.partiql.plugins.memory.MemoryPlugin
 import org.partiql.types.AnyOfType
 import org.partiql.types.AnyType
 import org.partiql.types.BagType
@@ -44,12 +47,8 @@ import org.partiql.types.StaticType.Companion.STRING
 import org.partiql.types.StaticType.Companion.unionOf
 import org.partiql.types.StructType
 import org.partiql.types.TupleConstraint
-import java.net.URI
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
 import java.time.Instant
 import java.util.stream.Stream
-import kotlin.io.path.pathString
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -138,37 +137,48 @@ class PartiQLSchemaInferencerTests {
     fun testSubqueries(tc: TestCase) = runTest(tc)
 
     companion object {
-        private val root = run {
-            // Github build attempted to retrieve the resource from
-            // jar:file:/home/runner/work/partiql-lang-kotlin/partiql-lang-kotlin/partiql-planner/build/libs/partiql-planner-0.14.1-alpha.1-test-fixtures.jar!/catalogs/default,
-            val URI = this::class.java.getResource("/catalogs/default")!!.toURI()
-            val env: Map<String, String> = HashMap()
-            val parts = URI.toString().split("!")
-            val fs: FileSystem = FileSystems.newFileSystem(URI(parts[0]), env)
-            val path = fs.getPath(parts[1])
-            path.pathString
+        val inputStream = this::class.java.getResourceAsStream("/resource_path.txt")!!
+
+        val provider = MemoryCatalog.Provider().also {
+            val map = mutableMapOf<String, MutableList<Pair<String, StaticType>>>()
+            inputStream.reader().readLines().forEach { path ->
+                if (path.startsWith("catalogs/default")) {
+                    val schema = this::class.java.getResourceAsStream("/$path")!!
+                    val ion = loadSingleElement(schema.reader().readText())
+                    val staticType = ion.toStaticType()
+                    val steps = path.split('/').drop(2) // drop the catalogs/default
+                    val catalogName = steps.first()
+                    val subPath = steps.drop(1).joinToString(".").let {
+                        it.substring(0, it.length - 4)
+                    }
+                    if (map.containsKey(catalogName)) {
+                        map[catalogName]!!.add(subPath to staticType)
+                    } else {
+                        map[catalogName] = mutableListOf(subPath to staticType)
+                    }
+                }
+            }
+            map.forEach { (k: String, v: MutableList<Pair<String, StaticType>>) ->
+                it[k] = MemoryCatalog.of(k, *v.toTypedArray())
+            }
         }
 
-        private val PLUGINS = listOf(LocalPlugin())
+        private val PLUGINS = listOf(MemoryPlugin(provider))
 
         private const val USER_ID = "TEST_USER"
 
         private val catalogConfig = mapOf(
             "aws" to ionStructOf(
-                field("connector_name", ionString("local")),
-                field("root", ionString("$root/aws")),
+                field("connector_name", ionString("memory")),
             ),
             "b" to ionStructOf(
-                field("connector_name", ionString("local")),
-                field("root", ionString("$root/b")),
+                field("connector_name", ionString("memory")),
             ),
             "db" to ionStructOf(
-                field("connector_name", ionString("local")),
-                field("root", ionString("$root/db")),
+                field("connector_name", ionString("memory")),
             ),
             "pql" to ionStructOf(
-                field("connector_name", ionString("local")),
-                field("root", ionString("$root/pql")),
+                field("connector_name", ionString("memory")),
             ),
             "subqueries" to ionStructOf(
                 field("connector_name", ionString("local")),

@@ -143,7 +143,7 @@ class PartiQLSchemaInferencerTests {
             val map = mutableMapOf<String, MutableList<Pair<String, StaticType>>>()
             inputStream.reader().readLines().forEach { path ->
                 if (path.startsWith("catalogs/default")) {
-                    val schema = PartiQLSchemaInferencerTests::class.java.getResourceAsStream("/$path")!!
+                    val schema = this::class.java.getResourceAsStream("/$path")!!
                     val ion = loadSingleElement(schema.reader().readText())
                     val staticType = ion.toStaticType()
                     val steps = path.split('/').drop(2) // drop the catalogs/default

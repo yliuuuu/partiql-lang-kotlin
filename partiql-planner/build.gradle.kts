@@ -37,6 +37,7 @@ dependencies {
 }
 
 tasks.register("generateResourcePath") {
+    dependsOn("processTestFixturesResources")
     doLast {
         val resourceDir = file("src/testFixtures/resources")
         val outDir = File("$buildDir/resources/testFixtures")
@@ -47,7 +48,6 @@ tasks.register("generateResourcePath") {
             println("exists")
             pathFile.writeText("") // clean up existing text
         }
-        println("if statement completed")
         resourceDir.walk().forEach { file ->
             println(file)
             if (!file.isDirectory) {

@@ -81,6 +81,7 @@ tasks.processResources {
 }
 
 tasks.processTestResources {
+    dependsOn(":partiql-planner:generateResourcePath")
     from("${project(":partiql-planner").buildDir}/resources/testFixtures") {
         this.eachFile {
             println(this.sourceName)

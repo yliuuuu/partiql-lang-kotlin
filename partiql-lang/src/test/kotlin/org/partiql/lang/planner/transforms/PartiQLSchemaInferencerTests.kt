@@ -55,11 +55,11 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PartiQLSchemaInferencerTests {
-    private val provider = PartiQLTestProvider()
+    private val testProvider = PartiQLTestProvider()
 
     init {
         // load test inputs
-        provider.load()
+        testProvider.load()
     }
 
     @ParameterizedTest
@@ -134,7 +134,7 @@ class PartiQLSchemaInferencerTests {
     companion object {
         val inputStream = this::class.java.getResourceAsStream("/resource_path.txt")!!
 
-        val provider = MemoryCatalog.Provider().also {
+        val catalogProvider = MemoryCatalog.Provider().also {
             val map = mutableMapOf<String, MutableList<Pair<String, StaticType>>>()
             inputStream.reader().readLines().forEach { path ->
                 if (path.startsWith("catalogs/default")) {
@@ -158,7 +158,7 @@ class PartiQLSchemaInferencerTests {
             }
         }
 
-        private val PLUGINS = listOf(MemoryPlugin(provider))
+        private val PLUGINS = listOf(MemoryPlugin(catalogProvider))
 
         private const val USER_ID = "TEST_USER"
 
@@ -3261,7 +3261,7 @@ class PartiQLSchemaInferencerTests {
         if (hasQuery == hasKey) {
             error("Test must have one of either `query` or `key`")
         }
-        val input = tc.query ?: provider[tc.key!!]!!.statement
+        val input = tc.query ?: testProvider[tc.key!!]!!.statement
 
         val result = PartiQLSchemaInferencer.inferInternal(input, ctx)
         assert(collector.problems.isEmpty()) {
@@ -3297,7 +3297,7 @@ class PartiQLSchemaInferencerTests {
         if (hasQuery == hasKey) {
             error("Test must have one of either `query` or `key`")
         }
-        val input = tc.query ?: provider[tc.key!!]!!.statement
+        val input = tc.query ?: testProvider[tc.key!!]!!.statement
         val result = PartiQLSchemaInferencer.inferInternal(input, ctx)
 
         assert(collector.problems.isNotEmpty()) {

@@ -148,7 +148,7 @@ class PartiQLSchemaInferencerTests {
                     val staticType = ion.toStaticType()
                     val steps = path.split('/').drop(2) // drop the catalogs/default
                     val catalogName = steps.first()
-                    val subPath = steps.drop(1).joinToString(".").let {
+                    val subPath = steps.drop(1).map { it.lowercase() }.joinToString(".").let {
                         it.substring(0, it.length - 4)
                     }
                     if (map.containsKey(catalogName)) {
@@ -181,8 +181,7 @@ class PartiQLSchemaInferencerTests {
                 field("connector_name", ionString("memory")),
             ),
             "subqueries" to ionStructOf(
-                field("connector_name", ionString("local")),
-                field("root", ionString("$root/subqueries")),
+                field("connector_name", ionString("memory")),
             ),
         )
 

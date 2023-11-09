@@ -21,8 +21,9 @@ jobs:
       matrix:
         java: [11]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           submodules: recursive
 
       - name: Use Java ${{ matrix.java }}

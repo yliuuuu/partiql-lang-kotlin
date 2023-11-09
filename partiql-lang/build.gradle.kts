@@ -81,7 +81,11 @@ tasks.processResources {
 }
 
 tasks.processTestResources {
-    from("${project(":partiql-planner").buildDir}/resources/testFixtures")
+    from("${project(":partiql-planner").buildDir}/resources/testFixtures") {
+        this.eachFile {
+            println(this.sourceName)
+        }
+    }
 }
 
 tasks.shadowJar {

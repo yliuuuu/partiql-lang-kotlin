@@ -137,7 +137,7 @@ class PartiQLSchemaInferencerTests {
     fun testSubqueries(tc: TestCase) = runTest(tc)
 
     companion object {
-        val inputStream = PartiQLSchemaInferencerTests::class.java.getResourceAsStream("/resource_path.txt")!!
+        val inputStream = this::class.java.getResourceAsStream("/resource_path.txt")!!
 
         val catalogProvider = MemoryCatalog.Provider().also {
             val map = mutableMapOf<String, MutableList<Pair<String, StaticType>>>()

@@ -38,4 +38,4 @@ jobs:
         env:
           DOKKA: false
           GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g"
-        run: ./gradlew build jacocoTestReport
+        run: ./gradlew build --stacktrace

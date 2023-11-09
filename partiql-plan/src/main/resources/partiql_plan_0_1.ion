@@ -1,0 +1,321 @@
+imports::{
+  kotlin: [
+    partiql_value::'org.partiql.value.PartiQLValue',
+    static_type::'org.partiql.types.StaticType',
+    scalar_signature::'org.partiql.types.function.FunctionSignature$Scalar',
+    aggregation_signature::'org.partiql.types.function.FunctionSignature$Aggregation',
+  ],
+}
+
+parti_q_l_plan::{
+  version:    parti_q_l_version,    // version :: (major minor)
+  globals:    list::[global],       // (globals ...)
+  statement:  statement,            // (statement ...)
+}
+
+parti_q_l_version::[
+  VERSION_0_0,
+  VERSION_0_1,  // CURRENT
+]
+
+// Globals
+
+global::{
+  path: '.identifier.qualified',
+  type: static_type,
+}
+
+// Functions
+
+fn::[
+  resolved::{
+    signature: scalar_signature,
+  },
+  unresolved::{
+    identifier: identifier,
+    isHidden: bool,
+  },
+]
+
+agg::[
+  resolved::{
+    signature: aggregation_signature,
+  },
+  unresolved::{
+    identifier: identifier,
+  },
+]
+
+// Statements
+
+statement::[
+  query::{
+    root: rex,
+  },
+]
+
+// Identifiers
+
+identifier::[
+  symbol::{
+    symbol:           string,
+    case_sensitivity: case_sensitivity,
+  },
+  qualified::{
+    root:   symbol,
+    steps:  list::[symbol],
+  },
+  _::[
+    case_sensitivity::[
+      SENSITIVE,
+      INSENSITIVE,
+    ],
+  ],
+]
+
+// Rex
+rex::{
+  type: static_type,
+  op:[
+
+    lit::{
+      value: partiql_value,
+    },
+
+    var::[
+      resolved::{
+        ref: int,
+      },
+      unresolved::{
+        identifier: identifier,
+        scope:      scope,
+      },
+      _::[
+        scope::[
+          DEFAULT,  //  x.y.z
+          LOCAL,    // @x.y.z
+        ],
+      ],
+    ],
+
+    global::{
+      ref: int,
+    },
+
+    path::{
+      root:   rex,
+      steps:  list::[step],
+      _: [
+        step::[
+          index::{ key: rex },
+          symbol::{ identifier: '.identifier.symbol' },
+          wildcard::{},
+          unpivot::{},
+        ],
+      ],
+    },
+
+    call::{
+       fn:    fn,
+       args:  list::[rex],
+    },
+
+    case::{
+      branches: list::[branch],
+      default: rex,
+      _: [
+        branch::{
+          condition:  rex,
+          rex:        rex,
+        },
+      ],
+    },
+
+    collection::{
+      values: list::[rex],
+    },
+
+    struct::{
+      fields: list::[field],
+      _: [
+        field::{
+          k: rex,
+          v: rex,
+        },
+      ],
+    },
+
+    pivot::{
+      key:    rex,
+      value:  rex,
+      rel:    rel,
+    },
+
+    coll_to_scalar::{
+      subquery: {
+        select: select,
+        type:   static_type // reify `select` type
+      }
+    },
+
+    select::{
+      constructor:  rex,
+      rel:          rel,
+    },
+
+    // SELECT v1.*, e2 AS a, v3.*
+    //
+    // SELECT VALUE TUPLEUNION(
+    //   CASE WHEN v1 IS TUPLE THEN v1 ELSE {'_1': v1} END,
+    //   {'a':e2 },
+    //   CASE WHEN v3 IS TUPLE THEN v3 ELSE {'_2': v3} END
+    // )
+    //
+    // Tuple Union Function Signature: (Array<Struct>) -> Struct
+    tuple_union::{
+      args: list::[rex],
+    },
+
+    err::{
+      message: string,
+    },
+  ],
+}
+
+// Rel
+
+rel::{
+  type: {
+    schema: list::[binding],
+    props:  set::[prop],
+  },
+  op: [
+
+    scan::{
+      rex: rex,
+    },
+
+    scan_indexed::{
+      rex: rex,
+    },
+
+    unpivot::{
+      rex:  rex,
+    },
+
+    distinct::{
+      input: rel,
+    },
+
+    filter::{
+      input:      rel,
+      predicate:  rex,
+    },
+
+    sort::{
+      input: rel,
+      specs: list::[spec],
+      _: [
+        spec::{
+          rex: rex,
+          order: order,
+        },
+        order::[
+          ASC_NULLS_LAST,
+          ASC_NULLS_FIRST,
+          DESC_NULLS_LAST,
+          DESC_NULLS_FIRST,
+        ],
+      ],
+    },
+
+    union::{
+      lhs: rel,
+      rhs: rel,
+    },
+
+    intersect::{
+      lhs: rel,
+      rhs: rel,
+    },
+
+    except::{
+      lhs: rel,
+      rhs: rel,
+    },
+
+    limit::{
+      input:  rel,
+      limit:  rex,
+    },
+
+    offset::{
+      input:  rel,
+      offset: rex,
+    },
+
+    project::{
+      input:        rel,
+      projections:  list::[rex],
+    },
+
+    join::{
+      lhs: rel,
+      rhs: rel,
+      rex: rex, // The Join Expression (required) (can be set to TRUE)
+      type: [
+        INNER, // Inner Join
+        LEFT,  // Left Outer Join
+        RIGHT, // Right Outer Join
+        FULL   // Full Outer Join
+      ],
+    },
+
+    aggregate::{
+      input:    rel,
+      strategy: [ FULL, PARTIAL ],
+      calls:    list::[call],
+      groups:   list::[rex],
+      _: [
+        call::{
+          agg:  agg,
+          args: list::[rex],
+        },
+      ],
+    },
+
+    exclude::{
+      input: rel,
+      items: list::[item],
+      _: [
+        item::{
+          root: '.identifier.symbol',
+          steps: list::[step],
+        },
+        step::[
+          attr::{
+            symbol: '.identifier.symbol',
+          },
+          pos::{
+            index: int,
+          },
+          struct_wildcard::{},
+          collection_wildcard::{},
+        ],
+      ],
+    },
+
+    err::{
+      message: string,
+    },
+  ],
+  _: [
+    prop::[
+      ORDERED,
+    ],
+    binding::{
+      name: string,
+      type: static_type,
+    },
+  ]
+}

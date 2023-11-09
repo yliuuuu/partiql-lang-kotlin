@@ -137,13 +137,13 @@ class PartiQLSchemaInferencerTests {
     fun testSubqueries(tc: TestCase) = runTest(tc)
 
     companion object {
-        val inputStream = this::class.java.getResourceAsStream("/resource_path.txt")!!
+        val inputStream = PartiQLSchemaInferencerTests::class.java.getResourceAsStream("/resource_path.txt")!!
 
         val catalogProvider = MemoryCatalog.Provider().also {
             val map = mutableMapOf<String, MutableList<Pair<String, StaticType>>>()
             inputStream.reader().readLines().forEach { path ->
                 if (path.startsWith("catalogs/default")) {
-                    val schema = this::class.java.getResourceAsStream("/$path")!!
+                    val schema = PartiQLSchemaInferencerTests::class.java.getResourceAsStream("/$path")!!
                     val ion = loadSingleElement(schema.reader().readText())
                     val staticType = ion.toStaticType()
                     val steps = path.split('/').drop(2) // drop the catalogs/default

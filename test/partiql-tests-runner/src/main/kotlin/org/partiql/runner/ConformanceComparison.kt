@@ -59,11 +59,13 @@ fun analyze(file: File, reports: List<Report>) {
 }
 
 fun loadReport(dir: File, commitId: String) =
-    dir.listFiles()!!.map { sub ->
+    dir.listFiles()?.map { sub ->
         val engine = sub.name
-        val report = sub.listFiles()!!.first().readText()
+        val report = (sub.listFiles() ?: throw IllegalArgumentException("sub-dir ${sub.absolutePath} not exist")).let {
+            it.first().readText()
+        }
         loadReport(report, engine, commitId)
-    }
+    } ?: throw IllegalArgumentException("dir ${dir.absolutePath} not exist")
 
 fun loadReport(report: String, engine: String, commitId: String): Report {
     val inputStruct = loadSingleElement(report).asStruct()

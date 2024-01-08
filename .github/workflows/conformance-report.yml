@@ -98,7 +98,7 @@ jobs:
       - name: Run conformance report comparison. Generates `comparison_report.md`
         continue-on-error: true
         run: |
-          ARGS="$GITHUB_WORKSPACE/artifact/$CONFORMANCE_REPORT_RELATIVE_PATH $CONFORMANCE_REPORT_RELATIVE_PATH ${{ github.event.pull_request.base.sha }} $GITHUB_SHA $COMPARISON_REPORT_NAME"
+          ARGS="$GITHUB_WORKSPACE/artifact $CONFORMANCE_REPORT_RELATIVE_PATH ${{ github.event.pull_request.base.sha }} $GITHUB_SHA $COMPARISON_REPORT_NAME"
           gradle :test:partiql-tests-runner:run --args="$ARGS"
       # Print conformance report to GitHub actions workflow summary page
       - name: Print markdown in run

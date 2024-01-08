@@ -194,22 +194,30 @@ Number failing in Base (${first.engine}) but pass in (${second.engine}): ${failu
                 """.trimIndent()
             )
             if (passingFirstFailingSecond.isNotEmpty()) {
-                this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:. The following test(s) were previously passing in ${first.engine} but fail in ${second.engine}:\n<details><summary>Click here to see</summary>\n\n")
+                if (passingFirstFailingSecond.size < 10) {
+                    this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:. The following test(s) were previously passing in ${first.engine} but fail in ${second.engine}:\n<details><summary>Click here to see</summary>\n\n")
 
-                passingFirstFailingSecond.forEach { testName ->
-                    this.appendLine("- $testName")
+                    passingFirstFailingSecond.forEach { testName ->
+                        this.appendLine("- $testName")
+                    }
+                    this.appendLine("</details>")
+                } else {
+                    this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:")
                 }
-                this.appendLine("</details>")
             }
 
             if (failureFirstPassingSecond.isNotEmpty()) {
-                this.appendLine(
-                    "The following test(s) were failing in ${first.engine} but now pass in ${second.engine}. Before merging, confirm they are intended to pass: \n<details><summary>Click here to see</summary>\n\n"
-                )
-                failureFirstPassingSecond.forEach { testName ->
-                    this.appendLine("- ${testName}\n")
+                if (failureFirstPassingSecond.size < 10) {
+                    this.appendLine(
+                        "The following test(s) were failing in ${first.engine} but now pass in ${second.engine}. Before merging, confirm they are intended to pass: \n<details><summary>Click here to see</summary>\n\n"
+                    )
+                    failureFirstPassingSecond.forEach { testName ->
+                        this.appendLine("- ${testName}\n")
+                    }
+                    this.appendLine("</details>")
+                } else {
+                    this.appendLine("${failureFirstPassingSecond.size} test(s) were failing in ${first.engine} but now pass in ${second.engine}. Before merging, confirm they are intended to pass.")
                 }
-                this.appendLine("</details>")
             }
         }
 }

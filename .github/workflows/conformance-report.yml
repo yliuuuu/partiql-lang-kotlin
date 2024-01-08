@@ -103,7 +103,7 @@ jobs:
       # Print conformance report to GitHub actions workflow summary page
       - name: Print markdown in run
         continue-on-error: true
-        run: cat $PATH_TO_TEST_RUNNER/$COMPARISON_REPORT_NAME >> $GITHUB_STEP_SUMMARY
+        run: echo $PATH_TO_TEST_RUNNER/$COMPARISON_REPORT_NAME >> $GITHUB_STEP_SUMMARY
       # Find comment w/ conformance comparison if previous comment published
       - name: Find Comment
         uses: peter-evans/find-comment@v2

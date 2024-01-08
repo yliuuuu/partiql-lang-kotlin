@@ -2,6 +2,10 @@ package org.partiql.runner
 
 import com.amazon.ionelement.api.loadSingleElement
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectory
 
 fun main(args: Array<String>) {
     if (args.size != 5) {
@@ -101,17 +105,17 @@ abstract class ReportAnalyzer(first: Report, second: Report) {
     val firstPassingPercent = firstPassingSize.toDouble() / firstTotalSize * 100
     val secondPassingPercent = secondPassingSize.toDouble() / secondTotalSize * 100
 
-    abstract val reportSubTitle: String
+    abstract val reportTitle: String
     abstract fun generateComparisonReport(): String
 }
 
 class CrossCommitReportAnalyzer(private val first: Report, private val second: Report) :
     ReportAnalyzer(first, second) {
-    override val reportSubTitle: String = "Cross Commit"
+    override val reportTitle: String = "Conformance comparison report-Cross Commit-${first.engine}"
     override fun generateComparisonReport() =
         buildString {
             this.appendLine(
-                """### Conformance comparison report - $reportSubTitle - ${first.engine}
+                """### $reportTitle
 | | Base (${first.commitId}) | ${second.commitId} | +/- |
 | --- | ---: | ---: | ---: |
 | % Passing | ${"%.2f".format(firstPassingPercent)}% | ${"%.2f".format(secondPassingPercent)}% | ${"%.2f".format(secondPassingPercent - firstPassingPercent)}% |
@@ -127,38 +131,48 @@ Number passing in both: ${passingInBoth.count()}
 
 Number failing in both: ${failingInBoth.count()}
 
-Number passing in Base (${second.commitId}) but now fail: ${passingFirstFailingSecond.count()}
+Number passing in Base (${first.commitId}) but now fail: ${passingFirstFailingSecond.count()}
 
 Number failing in Base (${first.commitId}) but now pass: ${failureFirstPassingSecond.count()}
                 """.trimIndent()
             )
             if (passingFirstFailingSecond.isNotEmpty()) {
-                this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:. The following test(s) were previously passing but now fail:\n<details><summary>Click here to see</summary>\n\n")
+                // character count limitation with comments in GitHub
+                // also, not ideal to list out hundreds of test names
+                if (passingFirstFailingSecond.size < 10) {
+                    this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:. The following test(s) were previously passing but now fail:\n<details><summary>Click here to see</summary>\n\n")
 
-                passingFirstFailingSecond.forEach { testName ->
-                    this.appendLine("- $testName")
+                    passingFirstFailingSecond.forEach { testName ->
+                        this.appendLine("- $testName")
+                    }
+                    this.appendLine("</details>")
+                } else {
+                    this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:")
                 }
-                this.appendLine("</details>")
             }
 
             if (failureFirstPassingSecond.isNotEmpty()) {
-                this.appendLine(
-                    "The following test(s) were previously failing but now pass. Before merging, confirm they are intended to pass: \n<details><summary>Click here to see</summary>\n\n"
-                )
-                failureFirstPassingSecond.forEach { testName ->
-                    this.appendLine("- ${testName}\n")
+                if (failureFirstPassingSecond.size < 10) {
+                    this.appendLine(
+                        "The following test(s) were previously failing but now pass. Before merging, confirm they are intended to pass: \n<details><summary>Click here to see</summary>\n\n"
+                    )
+                    failureFirstPassingSecond.forEach { testName ->
+                        this.appendLine("- ${testName}\n")
+                    }
+                    this.appendLine("</details>")
+                } else {
+                    this.appendLine("${failureFirstPassingSecond.size} test(s) were previously failing but now pass. Before merging, confirm they are intended to pass")
                 }
-                this.appendLine("</details>")
             }
         }
 }
 
 class CrossEngineReportAnalyzer(private val first: Report, private val second: Report) : ReportAnalyzer(first, second) {
-    override val reportSubTitle: String = "Cross Engine"
+    override val reportTitle: String = "Conformance comparison report-CrossEngine"
     override fun generateComparisonReport() =
         buildString {
             this.appendLine(
-                """### Conformance comparison report - $reportSubTitle - ${first.engine}
+                """### $reportTitle
 | | Base ${first.engine} | ${second.engine} | +/- |
 | --- | ---: | ---: | ---: |
 | % Passing | ${"%.2f".format(firstPassingPercent)}% | ${"%.2f".format(secondPassingPercent)}% | ${"%.2f".format(secondPassingPercent - firstPassingPercent)}% |
@@ -176,26 +190,34 @@ Number failing in both: ${failingInBoth.count()}
 
 Number passing in Base (${first.engine}) but fail in (${second.engine}): ${passingFirstFailingSecond.count()}
 
-Number failing in Base (${first.commitId}) but pass in (${second.engine}): ${failureFirstPassingSecond.count()}
+Number failing in Base (${first.engine}) but pass in (${second.engine}): ${failureFirstPassingSecond.count()}
                 """.trimIndent()
             )
             if (passingFirstFailingSecond.isNotEmpty()) {
-                this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:. The following test(s) were previously passing in ${first.engine} but fail in ${second.engine}:\n<details><summary>Click here to see</summary>\n\n")
+                if (passingFirstFailingSecond.size < 10) {
+                    this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:. The following test(s) were previously passing in ${first.engine} but fail in ${second.engine}:\n<details><summary>Click here to see</summary>\n\n")
 
-                passingFirstFailingSecond.forEach { testName ->
-                    this.appendLine("- $testName")
+                    passingFirstFailingSecond.forEach { testName ->
+                        this.appendLine("- $testName")
+                    }
+                    this.appendLine("</details>")
+                } else {
+                    this.appendLine(":interrobang: CONFORMANCE REPORT REGRESSION DETECTED :interrobang:")
                 }
-                this.appendLine("</details>")
             }
 
             if (failureFirstPassingSecond.isNotEmpty()) {
-                this.appendLine(
-                    "The following test(s) were failing in ${first.engine} but now pass in ${second.engine}. Before merging, confirm they are intended to pass: \n<details><summary>Click here to see</summary>\n\n"
-                )
-                failureFirstPassingSecond.forEach { testName ->
-                    this.appendLine("- ${testName}\n")
+                if (failureFirstPassingSecond.size < 10) {
+                    this.appendLine(
+                        "The following test(s) were failing in ${first.engine} but now pass in ${second.engine}. Before merging, confirm they are intended to pass: \n<details><summary>Click here to see</summary>\n\n"
+                    )
+                    failureFirstPassingSecond.forEach { testName ->
+                        this.appendLine("- ${testName}\n")
+                    }
+                    this.appendLine("</details>")
+                } else {
+                    this.appendLine("${failureFirstPassingSecond.size} test(s) were failing in ${first.engine} but now pass in ${second.engine}. Before merging, confirm they are intended to pass.")
                 }
-                this.appendLine("</details>")
             }
         }
 }

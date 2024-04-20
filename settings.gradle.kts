@@ -35,3 +35,5 @@ include(
     "test:sprout-tests",
     "examples",
 )
+include("plugins:partiql-base-jdbc")
+findProject(":plugins:partiql-base-jdbc")?.name = "partiql-base-jdbc"

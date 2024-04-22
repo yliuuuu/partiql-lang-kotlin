@@ -22,4 +22,6 @@ public interface JdbcClient {
     public fun toColumnMapping(session: ConnectorSession, connection: Connection, jdbcType: JdbcType): ColumnMapping
 
     public fun getBinding(session: ConnectorSession) : ConnectorBindings
+
+    public fun createTable(session: ConnectorSession, query: String)
 }

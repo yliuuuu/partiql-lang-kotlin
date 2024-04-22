@@ -21,6 +21,7 @@ import org.partiql.spi.connector.ConnectorPath
 import org.partiql.spi.connector.ConnectorSession
 import org.partiql.spi.connector.sql.info.InfoSchema
 import org.partiql.spi.fn.FnExperimental
+import org.partiql.types.StaticType
 
 /**
  * An instance of [SqlMetadata]
@@ -61,5 +62,16 @@ public open class SqlMetadata(
             return null
         }
         return ConnectorHandle.Agg(ConnectorPath(cnf), SqlAgg(name, variants))
+    }
+
+    override fun createTable(
+        path: ConnectorPath,
+        tableName: String,
+        shape: StaticType,
+        checkExpression: List<String>,
+        unique: List<String>,
+        primaryKey: List<String>
+    ) {
+        TODO("Not yet implemented")
     }
 }

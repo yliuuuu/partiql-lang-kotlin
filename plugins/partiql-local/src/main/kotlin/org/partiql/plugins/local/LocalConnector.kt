@@ -25,6 +25,7 @@ import org.partiql.spi.connector.ConnectorMetadata
 import org.partiql.spi.connector.ConnectorPath
 import org.partiql.spi.connector.ConnectorSession
 import org.partiql.spi.fn.FnExperimental
+import org.partiql.types.StaticType
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.notExists
@@ -121,6 +122,16 @@ public class LocalConnector(
 
         @FnExperimental
         override fun getAggregation(path: BindingPath): ConnectorHandle.Agg? = null
+        override fun createTable(
+            path: ConnectorPath,
+            tableName: String,
+            shape: StaticType,
+            checkExpression: List<String>,
+            unique: List<String>,
+            primaryKey: List<String>
+        ) {
+            TODO("Not yet implemented")
+        }
 
         internal fun listObjects(): List<BindingPath> = catalog.listObjects()
     }

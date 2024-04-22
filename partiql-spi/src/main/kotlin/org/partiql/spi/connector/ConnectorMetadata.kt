@@ -16,6 +16,7 @@ package org.partiql.spi.connector
 
 import org.partiql.spi.BindingPath
 import org.partiql.spi.fn.FnExperimental
+import org.partiql.types.StaticType
 
 /**
  * Aids in retrieving relevant Catalog metadata for the purpose of planning and execution.
@@ -55,4 +56,12 @@ public interface ConnectorMetadata {
      */
     @FnExperimental
     public fun getAggregation(path: BindingPath): ConnectorHandle.Agg?
+    public fun createTable(
+        path: ConnectorPath,
+        tableName: String,
+        shape: StaticType,
+        checkExpression: List<String>,
+        unique: List<String>,
+        primaryKey: List<String>
+    )
 }

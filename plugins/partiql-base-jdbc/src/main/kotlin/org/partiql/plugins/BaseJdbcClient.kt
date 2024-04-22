@@ -105,6 +105,14 @@ public abstract class BaseJdbcClient(
         }
     }
 
+
+    override fun createTable(session: ConnectorSession, query: String) {
+        val connection = connectionFactory.openConnection(session) ?: error("Failed to establish connection")
+        val stmt = connection.createStatement();
+        stmt.executeUpdate(query);
+        stmt.close();
+    }
+
     private fun listSchema(connection: Connection): Set<String> {
         //  Single catalog; multiple schema; multiple tables under each schema
         val catalog = connection.catalog
